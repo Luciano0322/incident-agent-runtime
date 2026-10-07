@@ -154,8 +154,8 @@ Health（S6）：
 
 - [x] `POST /incidents` 合法輸入回 201，body 含 `id`、`title`、`description`、`status="created"`。
 - [x] `title`、`description` 前後空白會被去除後保存。
-- [ ] `title` 為空字串或只有空白時回 422。
-- [ ] `description` 為空字串或只有空白時回 422。
+- [x] `title` 為空字串或只有空白時回 422。
+- [x] `description` 為空字串或只有空白時回 422。
 - [ ] 超過長度上限（D2）時回 422。
 - [ ] OpenAPI schema 中可以看到長度上限。
 

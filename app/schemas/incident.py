@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
-Text = Annotated[str, StringConstraints(strip_whitespace=True)]
+Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class IncidentCreate(BaseModel):

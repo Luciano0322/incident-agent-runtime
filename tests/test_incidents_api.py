@@ -1,3 +1,4 @@
+import pytest
 from fastapi.testclient import TestClient
 
 from app.main import create_app
@@ -74,3 +75,21 @@ def test_create_incident_strips_surrounding_whitespace(client):
     body = response.json()
     assert body["title"] == "Checkout API latency spike"
     assert body["description"] == "Checkout API latency increased significantly after 14:20."
+
+
+@pytest.mark.parametrize("title", ["", "   ", "\n\t"])
+def test_create_incident_rejects_blank_title(client, title):
+    response = client.post(
+        "/incidents", json={**CHECKOUT_INCIDENT, "title": title}
+    )
+
+    assert response.status_code == 422
+
+
+@pytest.mark.parametrize("description", ["", "   ", "\n\t"])
+def test_create_incident_rejects_blank_description(client, description):
+    response = client.post(
+        "/incidents", json={**CHECKOUT_INCIDENT, "description": description}
+    )
+
+    assert response.status_code == 422
