@@ -168,10 +168,10 @@ Health（S6）：
 ### 指令驗證
 
 - [x] `docker compose config` 成功。
-- [ ] `docker compose up --build -d db migrate api` 後，`migrate` 以 exit code 0 結束，`curl -f http://localhost:8000/health` 成功。
-- [ ] API 只綁定主機 `127.0.0.1:8000`；`db` 沒有對主機開放 port。
-- [ ] Runtime startup 沒有呼叫 `metadata.create_all()`。
-- [ ] Runtime image 不含 pytest。
+- [x] `docker compose up --build -d db migrate api` 後，`migrate` 以 exit code 0 結束，`curl -f http://localhost:8000/health` 成功。
+- [x] API 只綁定主機 `127.0.0.1:8000`；`db` 沒有對主機開放 port。
+- [x] Runtime startup 沒有呼叫 `metadata.create_all()`。
+- [x] Runtime image 不含 pytest。
 
 **出口條件：**
 
