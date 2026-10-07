@@ -101,21 +101,21 @@ docker compose --profile test run --rm tests pytest tests/<path>.py -k <name>
 
 **本階段做到哪裡：** 只做規劃，不寫產品程式碼，也不寫測試。
 
-- [ ] 確認 repo 現況（目前只有 proposal、README、LICENSE），以「從零建立」撰寫計畫。
-- [ ] 查證並選定相容版本：Python 3.12、FastAPI、Pydantic v2、LangGraph、LangChain Ollama adapter、SQLAlchemy 2.x、psycopg 3、Alembic、pytest 與 async 支援。
-- [ ] 選定 PostgreSQL 與 Ollama 映像的固定 release tag；可行時記錄 digest。
-- [ ] 設計 Compose startup / test dependency（`service_healthy`、`service_completed_successfully`）。
+- [x] 確認 repo 現況（目前只有 proposal、README、LICENSE），以「從零建立」撰寫計畫。
+- [x] 查證並選定相容版本：Python 3.12、FastAPI、Pydantic v2、LangGraph、LangChain Ollama adapter、SQLAlchemy 2.x、psycopg 3、Alembic、pytest 與 async 支援。
+- [x] 選定 PostgreSQL 與 Ollama 映像的固定 release tag；可行時記錄 digest。
+- [x] 設計 Compose startup / test dependency（`service_healthy`、`service_completed_successfully`）。
 - [ ] 決定第 4 節 D1–D6。
-- [ ] 列出必須實測才能確認的假設，至少包含：
-  - [ ] `llama3.2:3b` 在選定 Ollama / adapter 版本下能否 tool calling。
-  - [ ] 同一模型能否穩定產生 structured output。
-  - [ ] CPU 模式下調查耗時是否在 `INVESTIGATION_TIMEOUT_SECONDS` 內。
-- [ ] 產出 `docs/ImplementationPlan.md`。
+- [x] 列出必須實測才能確認的假設，至少包含：
+  - [x] `llama3.2:3b` 在選定 Ollama / adapter 版本下能否 tool calling。
+  - [x] 同一模型能否穩定產生 structured output。
+  - [x] CPU 模式下調查耗時是否在 `INVESTIGATION_TIMEOUT_SECONDS` 內。
+- [x] 產出 `docs/ImplementationPlan.md`。
 
 **出口條件：**
 
-- [ ] `docs/ImplementationPlan.md` 的每個項目都能對應到 proposal 的章節。
-- [ ] 第 2 節 seams 已確認。
+- [x] `docs/ImplementationPlan.md` 的每個項目都能對應到 proposal 的章節。
+- [x] 第 2 節 seams 已確認。
 
 ---
 
