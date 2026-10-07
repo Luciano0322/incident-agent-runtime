@@ -289,16 +289,16 @@ State 隔離（S4）：
 
 ### Review 項目（以 code review 確認，不寫測試）
 
-- [ ] 載入事件使用短 transaction，轉成 input snapshot 後關閉 session。
-- [ ] 調查在 DB transaction 外執行，期間不持有 row lock。
-- [ ] 報告 insert 與事件 status 更新在同一個新 transaction 中 commit 或 rollback。
-- [ ] async route 中沒有阻塞的 DB I/O；沒有跨 thread 共用 Session。
-- [ ] 沒有廣泛的 `except Exception` 把所有錯誤轉成 502。
+- [x] 載入事件使用短 transaction，轉成 input snapshot 後關閉 session。
+- [x] 調查在 DB transaction 外執行，期間不持有 row lock。
+- [x] 報告 insert 與事件 status 更新在同一個新 transaction 中 commit 或 rollback。
+- [x] async route 中沒有阻塞的 DB I/O；沒有跨 thread 共用 Session。
+- [x] 沒有廣泛的 `except Exception` 把所有錯誤轉成 502。
 
 **出口條件：**
 
 - [ ] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
-- [ ] Review 項目全部確認。
+- [x] Review 項目全部確認。
 
 ---
 
