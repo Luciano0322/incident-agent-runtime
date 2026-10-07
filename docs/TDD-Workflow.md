@@ -229,19 +229,19 @@ Graph 失敗流程（S4）：
 
 State 隔離（S4）：
 
-- [ ] 同一個 compiled graph 連續執行兩次，第二次結果不含第一次的 evidence 或 messages。
-- [ ] 同時（`asyncio.gather`）執行兩次不同 service 的調查，各自的 evidence 不互相混入。
+- [x] 同一個 compiled graph 連續執行兩次，第二次結果不含第一次的 evidence 或 messages。
+- [x] 同時（`asyncio.gather`）執行兩次不同 service 的調查，各自的 evidence 不互相混入。
 
 ### 指令驗證
 
-- [ ] 所有 nodes 為 `async def`，graph 由 `ainvoke` 驅動。
-- [ ] Graph nodes 中沒有任何 DB 存取。
-- [ ] `investigate()` 的參數與回傳只使用 Pydantic schema，不依賴 HTTP request 或 ORM 物件。
+- [x] 所有 nodes 為 `async def`，graph 由 `ainvoke` 驅動。
+- [x] Graph nodes 中沒有任何 DB 存取。
+- [x] `investigate()` 的參數與回傳只使用 Pydantic schema，不依賴 HTTP request 或 ORM 物件。
 
 **出口條件：**
 
 - [ ] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
-- [ ] 第 4 節 D1、D3 的決定已反映在測試中。
+- [x] 第 4 節 D1、D3 的決定已反映在測試中。
 
 ---
 

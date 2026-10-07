@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 import pytest
@@ -319,3 +320,46 @@ async def test_report_model_connection_error_is_a_provider_failure():
 
     with pytest.raises(ProviderFailure):
         await investigator.investigate(CHECKOUT)
+
+
+async def test_sequential_runs_on_one_graph_do_not_share_state():
+    investigator = build_investigator(
+        agent_model=ScriptedChatModel(replies=[query_checkout("c1"), finishes(), finishes()]),
+        report_model=ScriptedChatModel(
+            replies=[returns_report(POOL_REPORT), returns_report(NO_EVIDENCE_REPORT)]
+        ),
+    )
+
+    first = await investigator.investigate(CHECKOUT)
+    second = await investigator.investigate(CHECKOUT)
+
+    assert first.evidence == CHECKOUT_LINES
+    assert second.evidence == []
+    assert second.tool_calls == []
+
+
+def query_the_service_named_in_the_incident(messages):
+    if isinstance(messages[-1], ToolMessage):
+        return finishes()
+    service = "payment" if "Payment" in messages[-1].content else "checkout"
+    return calls_tools(tool_call("query_logs", {"service": service}, f"call-{service}"))
+
+
+async def test_concurrent_runs_keep_their_evidence_separate():
+    payment = InvestigationInput(
+        incident_id=2, title="Payment API errors", description="Payment API timeouts since 15:00."
+    )
+    investigator = build_investigator(
+        agent_model=ScriptedChatModel(respond=query_the_service_named_in_the_incident),
+        report_model=ScriptedChatModel(respond=lambda _: returns_report(NO_EVIDENCE_REPORT)),
+    )
+
+    checkout_result, payment_result = await asyncio.gather(
+        investigator.investigate(CHECKOUT), investigator.investigate(payment)
+    )
+
+    assert checkout_result.evidence == CHECKOUT_LINES
+    assert payment_result.evidence == [
+        "15:01 payment-api ERROR upstream timeout",
+        "15:02 payment-api WARN retry request",
+    ]
