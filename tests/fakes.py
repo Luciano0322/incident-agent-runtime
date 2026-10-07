@@ -65,3 +65,23 @@ def finishes() -> AIMessage:
 def returns_report(report: dict[str, Any]) -> AIMessage:
     """How a tool-calling model answers with_structured_output(InvestigationReport)."""
     return calls_tools(tool_call("InvestigationReport", report, "report-1"))
+
+
+class FakeModelRegistry:
+    """In-memory stand-in for the Ollama model registry."""
+
+    def __init__(self, models=(), reachable=True):
+        self.models = list(models)
+        self.reachable = reachable
+        self.pulled: list[str] = []
+
+    async def list_models(self) -> list[str]:
+        if not self.reachable:
+            raise ConnectionError("Failed to connect to Ollama")
+        return list(self.models)
+
+    async def pull(self, model: str) -> None:
+        if not self.reachable:
+            raise ConnectionError("Failed to connect to Ollama")
+        self.pulled.append(model)
+        self.models.append(model)

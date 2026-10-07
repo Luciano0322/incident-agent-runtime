@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     postgres_host: str = "db"
     postgres_port: int = 5432
 
+    ollama_base_url: str = "http://ollama:11434"
     llm_provider: Literal["ollama"] = "ollama"
     llm_model: str = "llama3.2:3b"
     max_tool_rounds: int = 2

@@ -1,21 +1,17 @@
-from pathlib import Path
-
 import pytest
 from alembic import command
-from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 
 from app.agent.models import ChatModels
 from app.config import Settings
+from app.db.migrations import alembic_config
 from app.main import create_app
 from tests.fakes import ScriptedChatModel
 
-ALEMBIC_INI = Path(__file__).resolve().parent.parent / "alembic.ini"
-
 
 def run_migrations() -> None:
-    command.upgrade(Config(str(ALEMBIC_INI)), "head")
+    command.upgrade(alembic_config(), "head")
 
 
 @pytest.fixture
@@ -51,6 +47,22 @@ def client_with_models(settings, database):
             report=ScriptedChatModel(replies=list(report_replies)),
         )
         client = TestClient(create_app(settings, chat_models=models), **client_kwargs)
+        clients.append(client.__enter__())
+        return client
+
+    yield build
+    for client in clients:
+        client.__exit__(None, None, None)
+
+
+@pytest.fixture
+def client_with_registry(settings, database):
+    """Build a client whose Ollama model registry is an in-memory fake."""
+    clients = []
+
+    def build(registry, settings=settings, **client_kwargs):
+        app = create_app(settings, model_registry=registry)
+        client = TestClient(app, **client_kwargs)
         clients.append(client.__enter__())
         return client
 

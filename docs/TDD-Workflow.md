@@ -310,12 +310,12 @@ State 隔離（S4）：
 
 Readiness（S6，注入 fake Ollama client）：
 
-- [ ] DB、migration、Ollama、模型都正常 → `GET /ready` 回 200。
-- [ ] DB 無法連線 → 503。
-- [ ] DB 的 migration 不是 head（D5）→ 503。
-- [ ] Ollama 無法連線 → 503。
-- [ ] Ollama 可連線但設定的模型不存在 → 503。
-- [ ] `/ready` 不呼叫推論（fake inference client 被呼叫時直接讓測試失敗）。
+- [x] DB、migration、Ollama、模型都正常 → `GET /ready` 回 200。
+- [x] DB 無法連線 → 503。
+- [x] DB 的 migration 不是 head（D5）→ 503。
+- [x] Ollama 無法連線 → 503。
+- [x] Ollama 可連線但設定的模型不存在 → 503。
+- [x] `/ready` 不呼叫推論（fake inference client 被呼叫時直接讓測試失敗）。
 
 Model-init（S8，注入 fake Ollama client 與 clock）：
 
