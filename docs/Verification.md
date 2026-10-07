@@ -40,7 +40,6 @@ Docker 啟動成功、fake-model 測試通過、live-model scenario 成功是三
 | # | 日期 | 模型 | 耗時 | 結果 | 說明 |
 |---|---|---|---|---|---|
 | 1 | 2026-10-07 | `llama3.2:3b` | 53.3 秒 | **FAIL**：report 沒有 hypothesis | 模型呼叫 `query_logs(service="checkout", keyword="14:20")`，把事件描述中的時間當成 keyword；fixture 沒有包含 `14:20` 的行，工具回傳空清單，因此沒有證據可引用。系統行為正確（grounding 未放行虛構證據），問題在模型對 keyword 的理解 |
-
 | 2 | 2026-10-07 | `llama3.2:3b` | > 300 秒 | **FAIL**：504 deadline exceeded | API 重建後的第一次調查；原因未確認（可能是模型重新載入加上 CPU 推論），未保留 Ollama log |
 | 3 | 2026-10-07 | `llama3.2:3b` | 43.3 秒 | **FAIL**：report 沒有 hypothesis | 呼叫 `query_logs(service="checkout", keyword="timeout")`，取得 1 行證據，但 report 仍回傳空的 hypotheses |
 | 4 | 2026-10-07 | `llama3.2:3b` | 21.5 秒 | **FAIL**：report 沒有 hypothesis | 同第 3 次 |
