@@ -1,0 +1,86 @@
+name: incident-agent-runtime
+
+x-app-env: &app-env
+  POSTGRES_DB: ${POSTGRES_DB:-incident_agent}
+  POSTGRES_USER: ${POSTGRES_USER:-incident_agent}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-incident_agent_dev}
+  POSTGRES_HOST: db
+  POSTGRES_PORT: "5432"
+  LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+  LLM_MODEL: ${LLM_MODEL:-llama3.2:3b}
+  MAX_TOOL_ROUNDS: ${MAX_TOOL_ROUNDS:-2}
+  GRAPH_RECURSION_LIMIT: ${GRAPH_RECURSION_LIMIT:-16}
+  INVESTIGATION_TIMEOUT_SECONDS: ${INVESTIGATION_TIMEOUT_SECONDS:-300}
+  LLM_REQUEST_TIMEOUT_SECONDS: ${LLM_REQUEST_TIMEOUT_SECONDS:-120}
+
+x-app-build: &app-build
+  context: .
+  target: runtime
+
+x-test-db-env: &test-db-env
+  POSTGRES_DB: incident_agent_test
+  POSTGRES_USER: incident_agent_test
+  POSTGRES_PASSWORD: incident_agent_test
+
+services:
+  db:
+    image: postgres:17.10-bookworm
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-incident_agent}
+      POSTGRES_USER: ${POSTGRES_USER:-incident_agent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-incident_agent_dev}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  migrate:
+    build: *app-build
+    command: ["alembic", "upgrade", "head"]
+    environment: *app-env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: *app-build
+    environment: *app-env
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  test-db:
+    profiles: ["test"]
+    image: postgres:17.10-bookworm
+    environment: *test-db-env
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  tests:
+    profiles: ["test"]
+    build:
+      context: .
+      target: test
+    environment:
+      <<: *test-db-env
+      POSTGRES_HOST: test-db
+      POSTGRES_PORT: "5432"
+    depends_on:
+      test-db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
