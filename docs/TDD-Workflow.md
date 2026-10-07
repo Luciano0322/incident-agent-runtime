@@ -342,19 +342,19 @@ Live 測試設定：
 - [x] Ollama healthcheck 不依賴映像中不存在的工具（例如 curl）。
 - [x] Ollama 沒有對主機開放 port。
 - [x] 再次執行 `model-init` 會跳過下載。
-- [ ] `docker compose exec api python -m scripts.live_smoke` 成功：
-  - [ ] 真實模型呼叫了 `query_logs(service="checkout")`。
-  - [ ] 報告 schema 合法，至少一個 hypothesis，`recommended_next_steps` 非空。
-  - [ ] 所有 evidence 完整符合工具實際結果。
-  - [ ] GET 取回相同報告。
-- [ ] 人工確認報告的假設與 checkout 日誌相關。
-- [ ] 若 `llama3.2:3b` 無法通過，更換模型並記錄原因與通過的版本。
-- [ ] 在 `docs/Verification.md` 記錄這次 live 結果：模型名稱、digest、Ollama 版本、硬體、初始化與調查耗時。
+- [x] `docker compose exec api python -m scripts.live_smoke` 成功：
+  - [x] 真實模型呼叫了 `query_logs(service="checkout")`。
+  - [x] 報告 schema 合法，至少一個 hypothesis，`recommended_next_steps` 非空。
+  - [x] 所有 evidence 完整符合工具實際結果。
+  - [x] GET 取回相同報告。
+- [x] 人工確認報告的假設與 checkout 日誌相關。
+- [x] 若 `llama3.2:3b` 無法通過，更換模型並記錄原因與通過的版本。
+- [x] 在 `docs/Verification.md` 記錄這次 live 結果：模型名稱、digest、Ollama 版本、硬體、初始化與調查耗時。
 
 **出口條件：**
 
 - [ ] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
-- [ ] 至少一次 live smoke 成功，且已記錄。
+- [x] 至少一次 live smoke 成功，且已記錄。
 
 ---
 

@@ -29,6 +29,11 @@ from app.tools.registry import default_tools
 MAX_TOOL_CALLS_PER_ROUND = 2
 
 
+def describe(exc: BaseException) -> str:
+    """The error message, or its type when the message is empty (e.g. httpx timeouts)."""
+    return str(exc) or type(exc).__name__
+
+
 @dataclass(frozen=True)
 class InvestigationLimits:
     max_tool_rounds: int = 2
@@ -119,7 +124,7 @@ class Investigator:
         try:
             reply = await self._agent.ainvoke(state["messages"])
         except PROVIDER_ERRORS as exc:
-            raise ProviderFailure(f"Agent model call failed: {exc}") from exc
+            raise ProviderFailure(f"Agent model call failed: {describe(exc)}") from exc
         if reply.tool_calls and state["tool_rounds"] >= self._limits.max_tool_rounds:
             raise LoopLimitExceeded(
                 f"Model still requested tools after {self._limits.max_tool_rounds} tool rounds"
@@ -170,7 +175,7 @@ class Investigator:
                 ]
             )
         except PROVIDER_ERRORS as exc:
-            raise ProviderFailure(f"Report model call failed: {exc}") from exc
+            raise ProviderFailure(f"Report model call failed: {describe(exc)}") from exc
         except (ValidationError, OutputParserException) as exc:
             raise InvalidStructuredOutput(f"Report model returned an invalid report: {exc}") from exc
         if not isinstance(report, InvestigationReport):

@@ -1,6 +1,7 @@
 import asyncio
 import json
 
+import httpx
 import pytest
 from langchain_core.messages import AIMessage, ToolMessage
 
@@ -330,3 +331,10 @@ async def test_concurrent_runs_keep_their_evidence_separate():
         "15:01 payment-api ERROR upstream timeout",
         "15:02 payment-api WARN retry request",
     ]
+
+
+async def test_provider_failure_names_the_error_when_it_has_no_message():
+    investigator = investigator_with_agent_replies(httpx.ReadTimeout(""))
+
+    with pytest.raises(ProviderFailure, match="ReadTimeout"):
+        await investigator.investigate(CHECKOUT)
