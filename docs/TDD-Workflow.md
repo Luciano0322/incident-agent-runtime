@@ -319,11 +319,11 @@ Readiness（S6，注入 fake Ollama client）：
 
 Model-init（S8，注入 fake Ollama client 與 clock）：
 
-- [ ] 模型已存在 → 不下載，exit code 0。
-- [ ] 模型不存在 → 下載後確認模型可查得，exit code 0。
-- [ ] 下載回報成功，但模型仍查不到 → 非零 exit code。
-- [ ] Ollama 在重試上限內一直無法連線 → 非零 exit code，錯誤訊息說明原因與重試次數。
-- [ ] Ollama 在重試上限內恢復連線 → 繼續完成初始化。
+- [x] 模型已存在 → 不下載，exit code 0。
+- [x] 模型不存在 → 下載後確認模型可查得，exit code 0。
+- [x] 下載回報成功，但模型仍查不到 → 非零 exit code。
+- [x] Ollama 在重試上限內一直無法連線 → 非零 exit code，錯誤訊息說明原因與重試次數。
+- [x] Ollama 在重試上限內恢復連線 → 繼續完成初始化。
 
 Ollama adapter（以 HTTP 層 stub 驗證）：
 
