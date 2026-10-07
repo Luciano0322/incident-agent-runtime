@@ -13,7 +13,7 @@ class Settings(BaseSettings):
 
     ollama_base_url: str = "http://ollama:11434"
     llm_provider: Literal["ollama"] = "ollama"
-    llm_model: str = "llama3.2:3b"
+    llm_model: str = "qwen2.5:7b"
     max_tool_rounds: int = 2
     graph_recursion_limit: int = 16
     investigation_timeout_seconds: float = 300

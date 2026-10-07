@@ -28,7 +28,16 @@
 | pytest | 見 `uv.lock` | |
 | httpx2 | 2.13.1 | FastAPI / Starlette test client 已建議改用 httpx2，httpx 會出現 deprecation warning |
 
-LangGraph、LangChain Ollama adapter、Ollama 映像在 M2 / M4 實際需要時才加入並查證，避免提前鎖定沒有使用的依賴。
+M2 / M4 加入的依賴：
+
+| 項目 | 版本 | 說明 |
+|---|---|---|
+| LangGraph | 1.2.14 | |
+| langchain-core | 1.6.7 | |
+| langchain-ollama | 1.1.0 | 依賴 `ollama` 0.6.3 |
+| pytest-asyncio | 1.4.0 | dev |
+| Ollama 映像 | `ollama/ollama:0.35.1` | 0.40.0 於查證前一天才發布，選上一個已有 patch 的系列 |
+| 預設模型 | `qwen2.5:7b` | 原候選 `llama3.2:3b` 實測無法穩定產生 hypotheses，見 Verification §4 |
 
 映像 digest：待 M5 記錄於 `docs/Verification.md`。
 

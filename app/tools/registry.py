@@ -11,8 +11,8 @@ class QueryLogsArgs(BaseModel):
     keyword: str | None = Field(
         default=None,
         description=(
-            "Optional case-insensitive substring of the log line text, for example"
-            " 'timeout'. Not a time filter. Omit it to get every line for the service."
+            "Optional case-insensitive substring of the log line text. Not a time"
+            " filter. Omit it to get every line for the service."
         ),
     )
 

@@ -13,8 +13,8 @@ Docker 啟動成功、fake-model 測試通過、live-model scenario 成功是三
 | GPU | 未使用（CPU 模式） |
 | RAM（主機 / Docker 可用） | 待補 |
 | Docker Engine / Compose | 待補 |
-| Ollama | `ollama/ollama:0.35.1`（server 版本待補） |
-| 模型 | `llama3.2:3b`（digest 待補） |
+| Ollama | `ollama/ollama:0.35.1`（server 回報 `ollama version is 0.35.1`） |
+| 模型 | `qwen2.5:7b`（digest 待補）；第 1–4 次使用 `llama3.2:3b` |
 | PostgreSQL | `postgres:17.10-bookworm` |
 | Python 映像 | `python:3.12.15-slim-bookworm` |
 
@@ -41,11 +41,21 @@ Docker 啟動成功、fake-model 測試通過、live-model scenario 成功是三
 |---|---|---|---|---|---|
 | 1 | 2026-10-07 | `llama3.2:3b` | 53.3 秒 | **FAIL**：report 沒有 hypothesis | 模型呼叫 `query_logs(service="checkout", keyword="14:20")`，把事件描述中的時間當成 keyword；fixture 沒有包含 `14:20` 的行，工具回傳空清單，因此沒有證據可引用。系統行為正確（grounding 未放行虛構證據），問題在模型對 keyword 的理解 |
 
+| 2 | 2026-10-07 | `llama3.2:3b` | > 300 秒 | **FAIL**：504 deadline exceeded | API 重建後的第一次調查；原因未確認（可能是模型重新載入加上 CPU 推論），未保留 Ollama log |
+| 3 | 2026-10-07 | `llama3.2:3b` | 43.3 秒 | **FAIL**：report 沒有 hypothesis | 呼叫 `query_logs(service="checkout", keyword="timeout")`，取得 1 行證據，但 report 仍回傳空的 hypotheses |
+| 4 | 2026-10-07 | `llama3.2:3b` | 21.5 秒 | **FAIL**：report 沒有 hypothesis | 同第 3 次 |
+
 第 1 次失敗後的調整：agent prompt 與 `query_logs` 的 keyword 說明改為明確表示 keyword 是日誌文字的子字串、不是時間篩選，並建議先不帶 keyword、查無結果時改為不帶 keyword 再查；report prompt 要求有證據時至少提出一個引用證據的 hypothesis。未加入任何替模型決定工具參數的程式分支（proposal §10）。
+
+第 3、4 次的 keyword `"timeout"` 是 prompt 中的範例字，模型直接照抄；之後已移除 prompt 與工具說明中的範例字，改為「先只帶 service 查詢」。
+
+### 更換預設模型
+
+第 3、4 次顯示 `llama3.2:3b` 在取得證據後仍傾向輸出空的 hypotheses。`ChatOllama` 預設以 `json_schema` 模式約束輸出，而 schema 允許空陣列，小模型會選擇最省事的合法輸出。依 proposal §8，預設模型改為 `qwen2.5:7b`（4.7 GB，tool calling 與 JSON 輸出較穩定）。代價是下載較大、需要較多記憶體，CPU 上每次調查較慢。
 
 ## 5. 尚未執行
 
-- 調整 prompt 後的 live smoke。
+- `qwen2.5:7b` 的 live smoke。
 - `pytest -m llm`。
 - 一般停止 / 重啟後資料與模型保留（M5）。
 - 全新 clone 重現（M5）。

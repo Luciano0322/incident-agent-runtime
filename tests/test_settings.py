@@ -30,7 +30,7 @@ def test_optional_settings_use_proposal_defaults(required_env):
     settings = Settings()
 
     assert settings.llm_provider == "ollama"
-    assert settings.llm_model == "llama3.2:3b"
+    assert settings.llm_model == "qwen2.5:7b"
     assert settings.max_tool_rounds == 2
     assert settings.graph_recursion_limit == 16
     assert settings.investigation_timeout_seconds == 300
