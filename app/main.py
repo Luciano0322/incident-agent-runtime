@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from app.agent.graph import InvestigationLimits, build_investigator
 from app.agent.models import ChatModels, build_chat_models
 from app.api import health, incidents
+from app.api.errors import register_error_handlers
 from app.config import Settings
 from app.db.session import create_sessionmaker
 from app.services.investigation import InvestigationService
@@ -37,6 +38,7 @@ def create_app(
         await app.state.sessionmaker.kw["bind"].dispose()
 
     app = FastAPI(title="incident-agent-runtime", lifespan=lifespan)
+    register_error_handlers(app)
     app.include_router(health.router)
     app.include_router(incidents.router)
     return app

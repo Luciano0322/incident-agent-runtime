@@ -272,12 +272,12 @@ State 隔離（S4）：
 
 錯誤映射（S6）：
 
-- [ ] 對不存在的事件調查 → 404 `Incident not found`。
-- [ ] Provider failure → 502。
-- [ ] Invalid structured output → 502。
-- [ ] Grounding violation → 502。
-- [ ] 未知工具 / 參數無效 → 502。
-- [ ] Loop limit → 502。
+- [x] 對不存在的事件調查 → 404 `Incident not found`。
+- [x] Provider failure → 502。
+- [x] Invalid structured output → 502。
+- [x] Grounding violation → 502。
+- [x] 未知工具 / 參數無效 → 502。
+- [x] Loop limit → 502。
 - [ ] Deadline exceeded → 504。
 - [ ] 非預期的程式錯誤 → 500，**不會**被歸類成 502。
 - [ ] 錯誤回應的 `detail` 不含資料庫密碼或 stack trace。

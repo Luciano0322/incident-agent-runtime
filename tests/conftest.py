@@ -45,7 +45,7 @@ def client_with_models(settings, database):
     """Build a client whose only substitution is the chat models."""
     clients = []
 
-    def build(agent_replies, report_replies, **client_kwargs):
+    def build(agent_replies, report_replies, settings=settings, **client_kwargs):
         models = ChatModels(
             agent=ScriptedChatModel(replies=list(agent_replies)),
             report=ScriptedChatModel(replies=list(report_replies)),

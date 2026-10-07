@@ -6,6 +6,10 @@ from app.db.repositories import IncidentRepository
 from app.schemas.investigation import InvestigationInput
 
 
+class IncidentNotFound(Exception):
+    pass
+
+
 class InvestigationService:
     """Load an incident snapshot, investigate outside any transaction, then save."""
 
@@ -22,6 +26,8 @@ class InvestigationService:
     async def investigate(self, incident_id: int) -> InvestigationReportRecord:
         async with self._sessionmaker() as session:
             incident = await IncidentRepository(session).get(incident_id)
+            if incident is None:
+                raise IncidentNotFound(incident_id)
             snapshot = InvestigationInput(
                 incident_id=incident.id, title=incident.title, description=incident.description
             )
