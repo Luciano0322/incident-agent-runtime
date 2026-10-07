@@ -279,13 +279,13 @@ State 隔離（S4）：
 - [x] 未知工具 / 參數無效 → 502。
 - [x] Loop limit → 502。
 - [x] Deadline exceeded → 504。
-- [ ] 非預期的程式錯誤 → 500，**不會**被歸類成 502。
-- [ ] 錯誤回應的 `detail` 不含資料庫密碼或 stack trace。
+- [x] 非預期的程式錯誤 → 500，**不會**被歸類成 502。
+- [x] 錯誤回應的 `detail` 不含資料庫密碼或 stack trace。
 
 失敗時的資料狀態（S6）：
 
-- [ ] 第一次調查就失敗 → `status` 維持 `created`，`latest_report` 為 `null`。
-- [ ] 已有成功報告後再次調查失敗 → `status` 維持 `completed`，`latest_report` 仍是先前那筆。
+- [x] 第一次調查就失敗 → `status` 維持 `created`，`latest_report` 為 `null`。
+- [x] 已有成功報告後再次調查失敗 → `status` 維持 `completed`，`latest_report` 仍是先前那筆。
 
 ### Review 項目（以 code review 確認，不寫測試）
 

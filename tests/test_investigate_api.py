@@ -147,3 +147,54 @@ def test_investigation_past_its_deadline_returns_504(client_with_models, setting
     response = client.post(f"/incidents/{incident_id}/investigate")
 
     assert response.status_code == 504
+
+
+def test_unexpected_error_returns_500_not_502(client_with_models):
+    client = client_with_models(
+        [RuntimeError("bug in our code")], [], raise_server_exceptions=False
+    )
+    incident_id = create_checkout_incident(client)
+
+    response = client.post(f"/incidents/{incident_id}/investigate")
+
+    assert response.status_code == 500
+
+
+def test_error_detail_is_the_failure_message_without_secrets_or_traceback(
+    client_with_models, settings
+):
+    client = client_with_models([ConnectionError("connection refused")], [])
+    incident_id = create_checkout_incident(client)
+
+    detail = client.post(f"/incidents/{incident_id}/investigate").json()["detail"]
+
+    assert detail == "Agent model call failed: connection refused"
+    assert "Traceback" not in detail
+    assert settings.database_url not in detail
+
+
+def test_failed_first_investigation_leaves_incident_created_without_report(client_with_models):
+    client = client_with_models([ConnectionError("connection refused")], [])
+    incident_id = create_checkout_incident(client)
+
+    client.post(f"/incidents/{incident_id}/investigate")
+
+    incident = client.get(f"/incidents/{incident_id}").json()
+    assert incident["status"] == "created"
+    assert incident["latest_report"] is None
+
+
+def test_failure_after_success_keeps_previous_report(client_with_models):
+    client = client_with_models(
+        [query_checkout(), finishes(), ConnectionError("connection refused")],
+        [returns_report(POOL_REPORT)],
+    )
+    incident_id = create_checkout_incident(client)
+    first_id = client.post(f"/incidents/{incident_id}/investigate").json()["report_id"]
+
+    failed = client.post(f"/incidents/{incident_id}/investigate")
+
+    incident = client.get(f"/incidents/{incident_id}").json()
+    assert failed.status_code == 502
+    assert incident["status"] == "completed"
+    assert incident["latest_report"]["id"] == first_id
