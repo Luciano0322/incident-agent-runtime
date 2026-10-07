@@ -20,6 +20,7 @@ COPY alembic.ini ./
 COPY migrations ./migrations
 COPY data ./data
 COPY app ./app
+COPY scripts ./scripts
 USER app
 EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=3s --start-period=10s --retries=3 \
@@ -34,6 +35,7 @@ COPY alembic.ini ./
 COPY migrations ./migrations
 COPY data ./data
 COPY app ./app
+COPY scripts ./scripts
 COPY tests ./tests
 USER app
 ENV PYTEST_ADDOPTS="-p no:cacheprovider"

@@ -332,15 +332,15 @@ Ollama adapter（以 HTTP 層 stub 驗證）：
 
 Live 測試設定：
 
-- [ ] `@pytest.mark.llm` 的測試在預設 `pytest` 執行中被排除。
-- [ ] 有明確的指令可以只執行 `llm` 測試，且該指令使用真實 Ollama adapter，不使用 fake。
+- [x] `@pytest.mark.llm` 的測試在預設 `pytest` 執行中被排除。
+- [x] 有明確的指令可以只執行 `llm` 測試，且該指令使用真實 Ollama adapter，不使用 fake。
 
 ### 指令驗證
 
 - [ ] 刪除 `ollama_data` 後 `docker compose up --build -d`：`model-init` 下載成功並以 exit code 0 結束，`migrate` 也是 0。
 - [ ] 初始化期間 `api` 不啟動；完成後 `curl -f http://localhost:8000/ready` 成功。
-- [ ] Ollama healthcheck 不依賴映像中不存在的工具（例如 curl）。
-- [ ] Ollama 沒有對主機開放 port。
+- [x] Ollama healthcheck 不依賴映像中不存在的工具（例如 curl）。
+- [x] Ollama 沒有對主機開放 port。
 - [ ] 再次執行 `model-init` 會跳過下載。
 - [ ] `docker compose exec api python -m scripts.live_smoke` 成功：
   - [ ] 真實模型呼叫了 `query_logs(service="checkout")`。

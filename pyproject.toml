@@ -32,3 +32,5 @@ package = false
 pythonpath = ["."]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+addopts = ["-m", "not llm"]
+markers = ["llm: needs a running Ollama with LLM_MODEL; run explicitly with -m llm"]

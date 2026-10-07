@@ -6,6 +6,7 @@ x-app-env: &app-env
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-incident_agent_dev}
   POSTGRES_HOST: db
   POSTGRES_PORT: "5432"
+  OLLAMA_BASE_URL: http://ollama:11434
   LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
   LLM_MODEL: ${LLM_MODEL:-llama3.2:3b}
   MAX_TOOL_ROUNDS: ${MAX_TOOL_ROUNDS:-2}
@@ -47,6 +48,27 @@ services:
         condition: service_healthy
     restart: "no"
 
+  ollama:
+    image: ollama/ollama:0.35.1
+    volumes:
+      - ollama_data:/root/.ollama
+    healthcheck:
+      # The image has no curl; the ollama CLI talks to the local server.
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  model-init:
+    build: *app-build
+    command: ["python", "-m", "scripts.model_init"]
+    environment: *app-env
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+
   api:
     build: *app-build
     environment: *app-env
@@ -54,6 +76,8 @@ services:
       - "127.0.0.1:8000:8000"
     depends_on:
       migrate:
+        condition: service_completed_successfully
+      model-init:
         condition: service_completed_successfully
     restart: unless-stopped
 
@@ -78,9 +102,13 @@ services:
       <<: *test-db-env
       POSTGRES_HOST: test-db
       POSTGRES_PORT: "5432"
+      # Only `pytest -m llm` reaches Ollama; start the main stack first for that.
+      OLLAMA_BASE_URL: http://ollama:11434
+      LLM_MODEL: ${LLM_MODEL:-llama3.2:3b}
     depends_on:
       test-db:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  ollama_data:
