@@ -156,8 +156,8 @@ Health（S6）：
 - [x] `title`、`description` 前後空白會被去除後保存。
 - [x] `title` 為空字串或只有空白時回 422。
 - [x] `description` 為空字串或只有空白時回 422。
-- [ ] 超過長度上限（D2）時回 422。
-- [ ] OpenAPI schema 中可以看到長度上限。
+- [x] 超過長度上限（D2）時回 422。
+- [x] OpenAPI schema 中可以看到長度上限。
 
 查詢事件（S6）：
 

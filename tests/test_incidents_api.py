@@ -93,3 +93,26 @@ def test_create_incident_rejects_blank_description(client, description):
     )
 
     assert response.status_code == 422
+
+
+@pytest.mark.parametrize(
+    ("field", "max_length"), [("title", 200), ("description", 5000)]
+)
+def test_create_incident_enforces_length_limit(client, field, max_length):
+    at_limit = client.post(
+        "/incidents", json={**CHECKOUT_INCIDENT, field: "x" * max_length}
+    )
+    over_limit = client.post(
+        "/incidents", json={**CHECKOUT_INCIDENT, field: "x" * (max_length + 1)}
+    )
+
+    assert at_limit.status_code == 201
+    assert over_limit.status_code == 422
+
+
+def test_openapi_documents_incident_length_limits(client):
+    schemas = client.get("/openapi.json").json()["components"]["schemas"]
+
+    properties = schemas["IncidentCreate"]["properties"]
+    assert properties["title"]["maxLength"] == 200
+    assert properties["description"]["maxLength"] == 5000

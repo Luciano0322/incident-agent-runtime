@@ -2,12 +2,21 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
-Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
+TITLE_MAX_LENGTH = 200
+DESCRIPTION_MAX_LENGTH = 5000
+
+Title = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=TITLE_MAX_LENGTH)
+]
+Description = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, min_length=1, max_length=DESCRIPTION_MAX_LENGTH),
+]
 
 
 class IncidentCreate(BaseModel):
-    title: Text
-    description: Text
+    title: Title
+    description: Description
 
 
 class IncidentOut(BaseModel):
