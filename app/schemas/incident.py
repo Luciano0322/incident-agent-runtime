@@ -2,6 +2,8 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
+from app.schemas.report import InvestigationReport
+
 TITLE_MAX_LENGTH = 200
 DESCRIPTION_MAX_LENGTH = 5000
 
@@ -30,3 +32,10 @@ class IncidentOut(BaseModel):
 
 class IncidentDetail(IncidentOut):
     latest_report: None = None
+
+
+class InvestigateResponse(BaseModel):
+    incident_id: int
+    report_id: int
+    status: Literal["completed"]
+    report: InvestigationReport

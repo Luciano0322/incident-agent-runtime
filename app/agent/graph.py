@@ -20,6 +20,7 @@ from app.agent.errors import (
     ToolCallError,
 )
 from app.agent.grounding import validate_grounding
+from app.config import Settings
 from app.schemas.investigation import InvestigationInput, InvestigationResult, ToolCallRecord
 from app.schemas.report import InvestigationReport
 from app.tools.registry import default_tools
@@ -36,6 +37,14 @@ class InvestigationLimits:
     max_tool_rounds: int = 2
     graph_recursion_limit: int = 16
     timeout_seconds: float = 300
+
+    @classmethod
+    def from_settings(cls, settings: Settings) -> "InvestigationLimits":
+        return cls(
+            max_tool_rounds=settings.max_tool_rounds,
+            graph_recursion_limit=settings.graph_recursion_limit,
+            timeout_seconds=settings.investigation_timeout_seconds,
+        )
 
 
 class InvestigationState(TypedDict):

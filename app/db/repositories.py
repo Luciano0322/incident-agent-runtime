@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import Incident
+from app.db.models import Incident, InvestigationReportRecord
+from app.schemas.investigation import InvestigationResult
 
 
 class IncidentRepository:
@@ -15,3 +16,17 @@ class IncidentRepository:
 
     async def get(self, incident_id: int) -> Incident | None:
         return await self._session.get(Incident, incident_id)
+
+    async def save_report(
+        self, incident_id: int, result: InvestigationResult, model_name: str
+    ) -> InvestigationReportRecord:
+        record = InvestigationReportRecord(
+            incident_id=incident_id,
+            report_json=result.report.model_dump(mode="json"),
+            evidence_json=result.evidence,
+            tool_calls_json=[call.model_dump(mode="json") for call in result.tool_calls],
+            model_name=model_name,
+        )
+        self._session.add(record)
+        await self._session.flush()
+        return record

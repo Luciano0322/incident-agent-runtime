@@ -2,7 +2,6 @@ import asyncio
 import json
 
 import pytest
-
 from langchain_core.messages import AIMessage, ToolMessage
 
 from app.agent.errors import (
@@ -16,18 +15,8 @@ from app.agent.errors import (
 from app.agent.graph import InvestigationLimits, build_investigator
 from app.schemas.investigation import InvestigationInput, InvestigationResult
 from tests.fakes import Slow, ScriptedChatModel, calls_tools, finishes, returns_report, tool_call
+from tests.scenarios import CHECKOUT, CHECKOUT_LINES, NO_EVIDENCE_REPORT, POOL_REPORT
 
-CHECKOUT = InvestigationInput(
-    incident_id=1,
-    title="Checkout API latency spike",
-    description="Checkout API latency increased significantly after 14:20.",
-)
-
-NO_EVIDENCE_REPORT = {
-    "summary": "No log evidence was collected.",
-    "hypotheses": [],
-    "recommended_next_steps": ["Identify the affected service and query its logs"],
-}
 
 
 async def test_agent_without_tool_calls_goes_straight_to_report():
@@ -41,28 +30,6 @@ async def test_agent_without_tool_calls_goes_straight_to_report():
     assert result.report.summary == "No log evidence was collected."
     assert result.evidence == []
     assert result.tool_calls == []
-
-CHECKOUT_LINES = [
-    "14:21 checkout-api ERROR database connection timeout",
-    "14:22 checkout-api ERROR connection pool exhausted",
-    "14:24 checkout-api WARN retrying database request",
-]
-
-POOL_REPORT = {
-    "summary": "Checkout latency may be related to database connection pool exhaustion.",
-    "hypotheses": [
-        {
-            "cause": "Database connection pool exhaustion",
-            "confidence": "high",
-            "evidence": [
-                "14:21 checkout-api ERROR database connection timeout",
-                "14:22 checkout-api ERROR connection pool exhausted",
-            ],
-        }
-    ],
-    "recommended_next_steps": ["Inspect active database connections"],
-}
-
 
 async def test_one_query_logs_call_collects_evidence_and_records_the_call():
     investigator = build_investigator(

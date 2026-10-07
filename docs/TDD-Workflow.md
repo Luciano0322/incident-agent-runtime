@@ -251,14 +251,14 @@ State 隔離（S4）：
 
 ### 先建立（非 TDD）
 
-- [ ] `investigation_reports` 資料表的 Alembic migration（若 M1 只建了 `incidents`）。
-- [ ] Composition：test 只替換模型 adapter，graph、tool registry、repository 都使用 production factory。
+- [x] `investigation_reports` 資料表的 Alembic migration（若 M1 只建了 `incidents`）。
+- [x] Composition：test 只替換模型 adapter，graph、tool registry、repository 都使用 production factory。
 
 ### Red → Green slices
 
 成功流程（S6）：
 
-- [ ] `POST /incidents/{id}/investigate` 回 200，body 含 `incident_id`、`report_id`、`status="completed"`、`report`。
+- [x] `POST /incidents/{id}/investigate` 回 200，body 含 `incident_id`、`report_id`、`status="completed"`、`report`。
 - [ ] 調查成功後，`GET /incidents/{id}` 的 `status` 為 `completed`。
 - [ ] `latest_report` 包含 report ID、建立時間、report、evidence、tool-call 紀錄。
 - [ ] Fake model 呼叫 `query_logs(service="checkout")` 時，保存的 evidence 等於真實 fixture 的 checkout 3 行（證明使用的是 production graph 與真實工具）。
