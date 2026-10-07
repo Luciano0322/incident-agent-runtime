@@ -1,16 +1,34 @@
+import asyncio
 import json
 from dataclasses import dataclass
 from typing import Annotated, TypedDict
 
+from langchain_core.exceptions import OutputParserException
 from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage, ToolMessage
+from langgraph.errors import GraphRecursionError
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
+from pydantic import ValidationError
 
 from app.agent import prompts
+from app.agent.errors import (
+    DeadlineExceeded,
+    InvalidStructuredOutput,
+    LoopLimitExceeded,
+    ProviderFailure,
+    ToolCallError,
+)
+from app.agent.grounding import validate_grounding
 from app.schemas.investigation import InvestigationInput, InvestigationResult, ToolCallRecord
 from app.schemas.report import InvestigationReport
 from app.tools.registry import default_tools
+
+MAX_TOOL_CALLS_PER_ROUND = 2
+
+# Errors that mean the model provider failed. Kept narrow on purpose: anything
+# else is a bug and should surface as a 500, not a provider failure.
+PROVIDER_ERRORS: tuple[type[BaseException], ...] = (ConnectionError,)
 
 
 @dataclass(frozen=True)
@@ -25,6 +43,7 @@ class InvestigationState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
     evidence: list[str]
     tool_calls: list[ToolCallRecord]
+    tool_rounds: int
     report: InvestigationReport | None
 
 
@@ -55,9 +74,28 @@ class Investigator:
         return graph.compile()
 
     async def investigate(self, incident: InvestigationInput) -> InvestigationResult:
-        state = await self._graph.ainvoke(
-            {"incident": incident, "messages": [], "evidence": [], "tool_calls": [], "report": None}
-        )
+        initial = {
+            "incident": incident,
+            "messages": [],
+            "evidence": [],
+            "tool_calls": [],
+            "tool_rounds": 0,
+            "report": None,
+        }
+        try:
+            async with asyncio.timeout(self._limits.timeout_seconds):
+                state = await self._graph.ainvoke(
+                    initial, config={"recursion_limit": self._limits.graph_recursion_limit}
+                )
+        except TimeoutError as exc:
+            raise DeadlineExceeded(
+                f"Investigation exceeded its {self._limits.timeout_seconds}s deadline"
+            ) from exc
+        except GraphRecursionError as exc:
+            raise LoopLimitExceeded(
+                f"Investigation hit the graph step limit of {self._limits.graph_recursion_limit}"
+            ) from exc
+        validate_grounding(state["report"], state["evidence"])
         return InvestigationResult(
             report=state["report"], evidence=state["evidence"], tool_calls=state["tool_calls"]
         )
@@ -72,7 +110,19 @@ class Investigator:
         }
 
     async def _call_agent(self, state: InvestigationState) -> dict:
-        reply = await self._agent.ainvoke(state["messages"])
+        try:
+            reply = await self._agent.ainvoke(state["messages"])
+        except PROVIDER_ERRORS as exc:
+            raise ProviderFailure(f"Agent model call failed: {exc}") from exc
+        if reply.tool_calls and state["tool_rounds"] >= self._limits.max_tool_rounds:
+            raise LoopLimitExceeded(
+                f"Model still requested tools after {self._limits.max_tool_rounds} tool rounds"
+            )
+        if len(reply.tool_calls) > MAX_TOOL_CALLS_PER_ROUND:
+            raise LoopLimitExceeded(
+                f"Model requested {len(reply.tool_calls)} tool calls in one round; "
+                f"the limit is {MAX_TOOL_CALLS_PER_ROUND}"
+            )
         return {"messages": [reply]}
 
     @staticmethod
@@ -85,23 +135,40 @@ class Investigator:
         records = list(state["tool_calls"])
         messages = []
         for call in state["messages"][-1].tool_calls:
-            tool = self._tools[call["name"]]
-            args = tool.args_schema.model_validate(call["args"])
+            tool = self._tools.get(call["name"])
+            if tool is None:
+                raise ToolCallError(f"Model requested unknown tool {call['name']!r}")
+            try:
+                args = tool.args_schema.model_validate(call["args"])
+            except ValidationError as exc:
+                raise ToolCallError(f"Invalid arguments for {call['name']!r}: {exc}") from exc
             lines = tool.func(**args.model_dump())
             evidence.extend(line for line in lines if line not in evidence)
             records.append(ToolCallRecord(name=call["name"], args=args.model_dump()))
             messages.append(
                 ToolMessage(json.dumps(lines), tool_call_id=call["id"], name=call["name"])
             )
-        return {"messages": messages, "evidence": evidence, "tool_calls": records}
+        return {
+            "messages": messages,
+            "evidence": evidence,
+            "tool_calls": records,
+            "tool_rounds": state["tool_rounds"] + 1,
+        }
 
     async def _write_report(self, state: InvestigationState) -> dict:
-        report = await self._report.ainvoke(
-            [
-                SystemMessage(prompts.REPORT_SYSTEM),
-                HumanMessage(prompts.report_request(state["incident"], state["evidence"])),
-            ]
-        )
+        try:
+            report = await self._report.ainvoke(
+                [
+                    SystemMessage(prompts.REPORT_SYSTEM),
+                    HumanMessage(prompts.report_request(state["incident"], state["evidence"])),
+                ]
+            )
+        except PROVIDER_ERRORS as exc:
+            raise ProviderFailure(f"Report model call failed: {exc}") from exc
+        except (ValidationError, OutputParserException) as exc:
+            raise InvalidStructuredOutput(f"Report model returned an invalid report: {exc}") from exc
+        if not isinstance(report, InvestigationReport):
+            raise InvalidStructuredOutput("Report model did not return a structured report")
         return {"report": report}
 
 

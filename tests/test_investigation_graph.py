@@ -1,10 +1,20 @@
 import json
 
-from langchain_core.messages import ToolMessage
+import pytest
 
-from app.agent.graph import build_investigator
+from langchain_core.messages import AIMessage, ToolMessage
+
+from app.agent.errors import (
+    DeadlineExceeded,
+    GroundingViolation,
+    InvalidStructuredOutput,
+    LoopLimitExceeded,
+    ProviderFailure,
+    ToolCallError,
+)
+from app.agent.graph import InvestigationLimits, build_investigator
 from app.schemas.investigation import InvestigationInput, InvestigationResult
-from tests.fakes import ScriptedChatModel, calls_tools, finishes, returns_report, tool_call
+from tests.fakes import Slow, ScriptedChatModel, calls_tools, finishes, returns_report, tool_call
 
 CHECKOUT = InvestigationInput(
     incident_id=1,
@@ -154,3 +164,158 @@ async def test_result_round_trips_through_json_without_framework_types():
         {"name": "query_logs", "args": {"service": "checkout", "keyword": None}}
     ]
     assert InvestigationResult.model_validate(payload) == result
+
+
+def investigator_with_agent_replies(*replies, report=POOL_REPORT, **kwargs):
+    return build_investigator(
+        agent_model=ScriptedChatModel(replies=list(replies)),
+        report_model=ScriptedChatModel(replies=[returns_report(report)]),
+        **kwargs,
+    )
+
+
+async def test_unknown_tool_is_reported_as_tool_call_error():
+    investigator = investigator_with_agent_replies(
+        calls_tools(tool_call("restart_service", {"service": "checkout"}, "c1")),
+        finishes(),
+    )
+
+    with pytest.raises(ToolCallError, match="restart_service"):
+        await investigator.investigate(CHECKOUT)
+
+
+@pytest.mark.parametrize(
+    "args",
+    [{}, {"service": 42}, {"service": "checkout", "limit": 10}],
+    ids=["missing-service", "wrong-type", "unexpected-arg"],
+)
+async def test_invalid_tool_arguments_are_reported_as_tool_call_error(args):
+    investigator = investigator_with_agent_replies(
+        calls_tools(tool_call("query_logs", args, "c1")),
+        finishes(),
+    )
+
+    with pytest.raises(ToolCallError, match="query_logs"):
+        await investigator.investigate(CHECKOUT)
+
+
+def query_checkout(call_id: str):
+    return calls_tools(tool_call("query_logs", {"service": "checkout"}, call_id))
+
+
+async def test_tool_request_after_max_rounds_is_a_loop_limit_failure():
+    report_model = ScriptedChatModel(replies=[returns_report(POOL_REPORT)])
+    investigator = build_investigator(
+        agent_model=ScriptedChatModel(
+            replies=[query_checkout("c1"), query_checkout("c2"), query_checkout("c3"), finishes()]
+        ),
+        report_model=report_model,
+        limits=InvestigationLimits(max_tool_rounds=2),
+    )
+
+    with pytest.raises(LoopLimitExceeded):
+        await investigator.investigate(CHECKOUT)
+    assert report_model.received == []
+
+
+async def test_more_than_two_tool_calls_in_one_round_is_rejected():
+    investigator = investigator_with_agent_replies(
+        calls_tools(
+            tool_call("query_logs", {"service": "checkout"}, "c1"),
+            tool_call("query_logs", {"service": "payment"}, "c2"),
+            tool_call("query_logs", {"service": "checkout", "keyword": "pool"}, "c3"),
+        ),
+        finishes(),
+    )
+
+    with pytest.raises(LoopLimitExceeded, match="3 tool calls"):
+        await investigator.investigate(CHECKOUT)
+
+
+async def test_two_tool_calls_in_one_round_are_allowed():
+    investigator = investigator_with_agent_replies(
+        calls_tools(
+            tool_call("query_logs", {"service": "checkout"}, "c1"),
+            tool_call("query_logs", {"service": "payment"}, "c2"),
+        ),
+        finishes(),
+    )
+
+    result = await investigator.investigate(CHECKOUT)
+
+    assert len(result.tool_calls) == 2
+
+
+async def test_graph_recursion_limit_is_reported_as_loop_limit():
+    investigator = investigator_with_agent_replies(
+        query_checkout("c1"),
+        finishes(),
+        limits=InvestigationLimits(graph_recursion_limit=3),
+    )
+
+    with pytest.raises(LoopLimitExceeded, match="graph step limit"):
+        await investigator.investigate(CHECKOUT)
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [
+        returns_report({**POOL_REPORT, "hypotheses": [{**POOL_REPORT["hypotheses"][0], "confidence": "certain"}]}),
+        returns_report({"summary": "Missing the other fields."}),
+        AIMessage(content="Here is my report: the database is slow."),
+    ],
+    ids=["bad-confidence", "missing-fields", "no-structured-reply"],
+)
+async def test_invalid_report_output_is_reported(reply):
+    investigator = build_investigator(
+        agent_model=ScriptedChatModel(replies=[query_checkout("c1"), finishes()]),
+        report_model=ScriptedChatModel(replies=[reply]),
+    )
+
+    with pytest.raises(InvalidStructuredOutput):
+        await investigator.investigate(CHECKOUT)
+
+
+async def test_report_citing_evidence_that_was_not_collected_is_a_grounding_violation():
+    ungrounded = {
+        **POOL_REPORT,
+        "hypotheses": [
+            {
+                "cause": "Upstream payment timeout",
+                "confidence": "medium",
+                "evidence": ["15:01 payment-api ERROR upstream timeout"],
+            }
+        ],
+    }
+    investigator = investigator_with_agent_replies(query_checkout("c1"), finishes(), report=ungrounded)
+
+    with pytest.raises(GroundingViolation, match="15:01 payment-api ERROR upstream timeout"):
+        await investigator.investigate(CHECKOUT)
+
+
+async def test_investigation_past_its_deadline_is_reported():
+    investigator = build_investigator(
+        agent_model=ScriptedChatModel(replies=[Slow(1.0, finishes())]),
+        report_model=ScriptedChatModel(replies=[returns_report(NO_EVIDENCE_REPORT)]),
+        limits=InvestigationLimits(timeout_seconds=0.05),
+    )
+
+    with pytest.raises(DeadlineExceeded):
+        await investigator.investigate(CHECKOUT)
+
+
+async def test_agent_model_connection_error_is_a_provider_failure():
+    investigator = investigator_with_agent_replies(ConnectionError("connection refused"))
+
+    with pytest.raises(ProviderFailure):
+        await investigator.investigate(CHECKOUT)
+
+
+async def test_report_model_connection_error_is_a_provider_failure():
+    investigator = build_investigator(
+        agent_model=ScriptedChatModel(replies=[finishes()]),
+        report_model=ScriptedChatModel(replies=[ConnectionError("connection reset")]),
+    )
+
+    with pytest.raises(ProviderFailure):
+        await investigator.investigate(CHECKOUT)

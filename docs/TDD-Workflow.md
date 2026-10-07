@@ -217,15 +217,15 @@ Graph 正常流程（S4，注入 scripted fake model）：
 
 Graph 失敗流程（S4）：
 
-- [ ] Agent 呼叫未知工具 → 回報 tool error。
-- [ ] 工具參數無效（缺少 `service`、型別錯誤）→ 回報 tool error。
-- [ ] 完成 `MAX_TOOL_ROUNDS` 輪後 agent 仍要求工具 → 回報 loop-limit failure，不產生報告。
-- [ ] 單一輪 tool calls 超過 2 個 → 依 D1 的決定處理。
-- [ ] 把 `GRAPH_RECURSION_LIMIT` 設得比正常流程所需更小 → 回報明確的錯誤，而不是框架的原始例外。
-- [ ] Report model 回傳不符合 schema 的內容 → 回報 invalid structured output。
-- [ ] Report 引用了沒有取得的 evidence → 回報 grounding violation，不刪除或修補該 evidence。
-- [ ] Fake model 回應時間超過整體 deadline → 回報 deadline exceeded。
-- [ ] Fake model 拋出連線類錯誤 → 回報 provider failure。
+- [x] Agent 呼叫未知工具 → 回報 tool error。
+- [x] 工具參數無效（缺少 `service`、型別錯誤）→ 回報 tool error。
+- [x] 完成 `MAX_TOOL_ROUNDS` 輪後 agent 仍要求工具 → 回報 loop-limit failure，不產生報告。
+- [x] 單一輪 tool calls 超過 2 個 → 依 D1 的決定處理。
+- [x] 把 `GRAPH_RECURSION_LIMIT` 設得比正常流程所需更小 → 回報明確的錯誤，而不是框架的原始例外。
+- [x] Report model 回傳不符合 schema 的內容 → 回報 invalid structured output。
+- [x] Report 引用了沒有取得的 evidence → 回報 grounding violation，不刪除或修補該 evidence。
+- [x] Fake model 回應時間超過整體 deadline → 回報 deadline exceeded。
+- [x] Fake model 拋出連線類錯誤 → 回報 provider failure。
 
 State 隔離（S4）：
 
