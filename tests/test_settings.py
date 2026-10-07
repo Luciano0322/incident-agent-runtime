@@ -33,8 +33,8 @@ def test_optional_settings_use_proposal_defaults(required_env):
     assert settings.llm_model == "qwen2.5:7b"
     assert settings.max_tool_rounds == 2
     assert settings.graph_recursion_limit == 16
-    assert settings.investigation_timeout_seconds == 300
-    assert settings.llm_request_timeout_seconds == 120
+    assert settings.investigation_timeout_seconds == 600
+    assert settings.llm_request_timeout_seconds == 300
 
 
 def test_ollama_provider_is_accepted(required_env):

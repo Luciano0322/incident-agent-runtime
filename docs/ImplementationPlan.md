@@ -61,6 +61,8 @@ D1–D5 是依 TDD-Workflow 的建議先採用；如需改變，修改本表與�
 | `DATABASE_URL` | §8：由 Compose 組合後傳入 | Compose 傳入 `POSTGRES_*` 與 `POSTGRES_HOST`，由 `Settings.database_url` 以 SQLAlchemy `URL.create` 組合 | §8 要求自訂密碼時正確處理特殊字元；在 Compose 字串插值中無法做 URL escaping |
 | Compose 變數 | §14：先 `cp .env.example .env` | Compose 對每個變數提供與 `.env.example` 相同的預設值 | 沒有 `.env` 時（例如 CI）`docker compose config` 與 test profile 仍可解析；README 的步驟不變 |
 | Test profile | §18：M5 | M1 建立最小可用版本，M5 補齊 | M1 起就需要真實 PostgreSQL 測試（TDD-Workflow §3） |
+| 預設模型 | §8：`llama3.2:3b` | `qwen2.5:7b` | `llama3.2:3b` 實測無法穩定產生 hypotheses（Verification §4）；§8 允許實測後更換 |
+| 逾時預設值 | §8：單次請求 120 秒、整體 300 秒 | 單次請求 300 秒、整體 600 秒 | CPU 跑 `qwen2.5:7b` 實測調查耗時 100–223 秒，首次載入模型可能超過 120 秒（Verification §4）；由專案負責人決定 |
 
 README 中「`DATABASE_URL` 由 Compose 組合」的描述，在 M5 文件同步時更新。
 

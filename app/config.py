@@ -16,8 +16,8 @@ class Settings(BaseSettings):
     llm_model: str = "qwen2.5:7b"
     max_tool_rounds: int = 2
     graph_recursion_limit: int = 16
-    investigation_timeout_seconds: float = 300
-    llm_request_timeout_seconds: float = 120
+    investigation_timeout_seconds: float = 600
+    llm_request_timeout_seconds: float = 300
 
     @property
     def database_url(self) -> str:

@@ -38,7 +38,7 @@ def describe(exc: BaseException) -> str:
 class InvestigationLimits:
     max_tool_rounds: int = 2
     graph_recursion_limit: int = 16
-    timeout_seconds: float = 300
+    timeout_seconds: float = 600
 
     @classmethod
     def from_settings(cls, settings: Settings) -> "InvestigationLimits":

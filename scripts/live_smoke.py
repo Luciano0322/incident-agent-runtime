@@ -69,7 +69,7 @@ def request(method: str, url: str, body: dict | None = None, timeout: float = 30
 
 def main() -> None:
     base = os.environ.get("API_BASE_URL", "http://127.0.0.1:8000")
-    investigate_timeout = float(os.environ.get("INVESTIGATION_TIMEOUT_SECONDS", "300")) + 30
+    investigate_timeout = float(os.environ.get("INVESTIGATION_TIMEOUT_SECONDS", "600")) + 30
 
     try:
         incident = request("POST", f"{base}/incidents", CHECKOUT_INCIDENT)
