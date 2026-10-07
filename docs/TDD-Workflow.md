@@ -297,7 +297,7 @@ State 隔離（S4）：
 
 **出口條件：**
 
-- [ ] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
+- [x] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
 - [x] Review 項目全部確認。
 
 ---
