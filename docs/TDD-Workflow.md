@@ -130,7 +130,7 @@ docker compose --profile test run --rm tests pytest tests/<path>.py -k <name>
 - [x] `.dockerignore`：排除 `.env`、`.venv`、`.git`、暫存檔。
 - [x] `compose.yaml`：`db`、`migrate`、`api`，以及 `test` profile 的 `test-db`、`tests`。
 - [x] `.env.example`（proposal §8 的預設值）。
-- [ ] 一個必定通過的 smoke 測試，確認 `tests` service 能連上 `test-db`。
+- [x] 一個必定通過的 smoke 測試，確認 `tests` service 能連上 `test-db`。
 
 ### Red → Green slices
 
