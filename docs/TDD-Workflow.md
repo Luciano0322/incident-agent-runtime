@@ -278,7 +278,7 @@ State 隔離（S4）：
 - [x] Grounding violation → 502。
 - [x] 未知工具 / 參數無效 → 502。
 - [x] Loop limit → 502。
-- [ ] Deadline exceeded → 504。
+- [x] Deadline exceeded → 504。
 - [ ] 非預期的程式錯誤 → 500，**不會**被歸類成 502。
 - [ ] 錯誤回應的 `detail` 不含資料庫密碼或 stack trace。
 
