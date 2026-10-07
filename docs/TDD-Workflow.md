@@ -175,8 +175,8 @@ Health（S6）：
 
 **出口條件：**
 
-- [ ] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
-- [ ] 指令驗證全部通過。
+- [x] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
+- [x] 指令驗證全部通過。
 
 ---
 
