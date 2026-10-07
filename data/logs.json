@@ -1,0 +1,11 @@
+{
+  "checkout": [
+    "14:21 checkout-api ERROR database connection timeout",
+    "14:22 checkout-api ERROR connection pool exhausted",
+    "14:24 checkout-api WARN retrying database request"
+  ],
+  "payment": [
+    "15:01 payment-api ERROR upstream timeout",
+    "15:02 payment-api WARN retry request"
+  ]
+}

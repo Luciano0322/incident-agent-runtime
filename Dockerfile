@@ -18,6 +18,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-dev
 COPY alembic.ini ./
 COPY migrations ./migrations
+COPY data ./data
 COPY app ./app
 USER app
 EXPOSE 8000
@@ -31,6 +32,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked
 COPY alembic.ini ./
 COPY migrations ./migrations
+COPY data ./data
 COPY app ./app
 COPY tests ./tests
 USER app

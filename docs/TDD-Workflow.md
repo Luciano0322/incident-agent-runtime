@@ -188,11 +188,11 @@ Health（S6）：
 
 `query_logs`（S2）：
 
-- [ ] `service="checkout"` 依原順序回傳 fixture 的 3 行。
-- [ ] 不存在的 service 回傳 `[]`。
-- [ ] `keyword` 不分大小寫做子字串篩選（例如 `keyword="POOL"` 只回傳 `connection pool exhausted` 那一行）。
-- [ ] `keyword` 沒有符合的行時回傳 `[]`。
-- [ ] 從不同的工作目錄呼叫，結果相同（fixture 路徑不依賴 cwd）。
+- [x] `service="checkout"` 依原順序回傳 fixture 的 3 行。
+- [x] 不存在的 service 回傳 `[]`。
+- [x] `keyword` 不分大小寫做子字串篩選（例如 `keyword="POOL"` 只回傳 `connection pool exhausted` 那一行）。
+- [x] `keyword` 沒有符合的行時回傳 `[]`。
+- [x] 從不同的工作目錄呼叫，結果相同（fixture 路徑不依賴 cwd）。
 
 Report schema 與 grounding（S3）：
 
