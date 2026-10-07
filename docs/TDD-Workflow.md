@@ -196,15 +196,15 @@ Health（S6）：
 
 Report schema 與 grounding（S3）：
 
-- [ ] proposal §4 的報告範例通過 schema 驗證。
-- [ ] `confidence` 不是 `low` / `medium` / `high` 時，schema 驗證失敗。
-- [ ] 缺少必要欄位時，schema 驗證失敗。
-- [ ] evidence 完整符合工具實際回傳的行時，grounding 通過。
-- [ ] evidence 是改寫過的句子（例如少了時間戳）時，grounding 拒絕。
-- [ ] evidence 來自沒有查詢的 service（例如 payment 的行）時，grounding 拒絕。
-- [ ] evidence 是被 keyword 排除的行時，grounding 拒絕。
-- [ ] evidence 是事件描述文字時，grounding 拒絕。
-- [ ] 沒有任何 evidence 時，`hypotheses=[]` 的報告通過。
+- [x] proposal §4 的報告範例通過 schema 驗證。
+- [x] `confidence` 不是 `low` / `medium` / `high` 時，schema 驗證失敗。
+- [x] 缺少必要欄位時，schema 驗證失敗。
+- [x] evidence 完整符合工具實際回傳的行時，grounding 通過。
+- [x] evidence 是改寫過的句子（例如少了時間戳）時，grounding 拒絕。
+- [x] evidence 來自沒有查詢的 service（例如 payment 的行）時，grounding 拒絕。
+- [x] evidence 是被 keyword 排除的行時，grounding 拒絕。
+- [x] evidence 是事件描述文字時，grounding 拒絕。
+- [x] 沒有任何 evidence 時，`hypotheses=[]` 的報告通過。
 
 Graph 正常流程（S4，注入 scripted fake model）：
 
