@@ -23,6 +23,7 @@ Docker 啟動成功、fake-model 測試通過、live-model scenario 成功是三
 | 日期 | 指令 | 結果 |
 |---|---|---|
 | 2026-10-07 | `docker compose --profile test run --build --rm tests` | 104 passed, 1 deselected（`llm`） |
+| 2026-10-07 | 同上（M4 結束時） | 105 passed, 1 deselected（`llm`） |
 
 ## 3. 啟動與初始化
 

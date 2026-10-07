@@ -353,7 +353,7 @@ Live 測試設定：
 
 **出口條件：**
 
-- [ ] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
+- [x] 上列 slices 全部勾選，`pytest -m "not llm"` 全綠。
 - [x] 至少一次 live smoke 成功，且已記錄。
 
 ---
