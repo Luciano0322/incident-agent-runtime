@@ -76,3 +76,17 @@ def test_saved_report_is_visible_from_a_new_application_instance(client_with_mod
 
     assert latest["id"] == report_id
     assert latest["report"] == POOL_REPORT
+
+
+def test_second_investigation_becomes_the_latest_report(client_with_models):
+    client = client_with_models(
+        [QUERY_CHECKOUT, finishes(), QUERY_CHECKOUT, finishes()],
+        [returns_report(POOL_REPORT), returns_report(POOL_REPORT)],
+    )
+    incident_id = create_checkout_incident(client)
+
+    first_id = client.post(f"/incidents/{incident_id}/investigate").json()["report_id"]
+    second_id = client.post(f"/incidents/{incident_id}/investigate").json()["report_id"]
+
+    assert second_id > first_id
+    assert client.get(f"/incidents/{incident_id}").json()["latest_report"]["id"] == second_id

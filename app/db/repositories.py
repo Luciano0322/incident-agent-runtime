@@ -44,3 +44,12 @@ class IncidentRepository:
             .limit(1)
         )
         return await self._session.scalar(statement)
+
+    async def list_reports(self, incident_id: int) -> list[InvestigationReportRecord]:
+        """Every saved report for the incident, oldest first."""
+        statement = (
+            select(InvestigationReportRecord)
+            .where(InvestigationReportRecord.incident_id == incident_id)
+            .order_by(InvestigationReportRecord.id)
+        )
+        return list(await self._session.scalars(statement))
