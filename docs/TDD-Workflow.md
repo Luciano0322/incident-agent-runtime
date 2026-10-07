@@ -208,12 +208,12 @@ Report schema 與 grounding（S3）：
 
 Graph 正常流程（S4，注入 scripted fake model）：
 
-- [ ] Agent 不呼叫工具 → 產生報告，`evidence=[]`、`tool_calls=[]`。
-- [ ] Agent 呼叫 `query_logs(service="checkout")` 一次 → evidence 為 checkout 的 3 行，`tool_calls` 記錄工具名稱與已驗證的參數，並產生報告。
-- [ ] 工具執行後，agent 下一次收到的訊息包含 tool result，且 `tool_call_id` 與該次呼叫相符（由 fake model 記錄收到的輸入來觀察）。
-- [ ] 兩輪工具呼叫時，evidence 累積；完全相同的行只保留一次，順序維持首次出現的順序。
-- [ ] Report model 收到的 evidence 與 `InvestigationResult.evidence` 一致。
-- [ ] `InvestigationResult` 能序列化成 JSON，且不含 LangChain / LangGraph 型別。
+- [x] Agent 不呼叫工具 → 產生報告，`evidence=[]`、`tool_calls=[]`。
+- [x] Agent 呼叫 `query_logs(service="checkout")` 一次 → evidence 為 checkout 的 3 行，`tool_calls` 記錄工具名稱與已驗證的參數，並產生報告。
+- [x] 工具執行後，agent 下一次收到的訊息包含 tool result，且 `tool_call_id` 與該次呼叫相符（由 fake model 記錄收到的輸入來觀察）。
+- [x] 兩輪工具呼叫時，evidence 累積；完全相同的行只保留一次，順序維持首次出現的順序。
+- [x] Report model 收到的 evidence 與 `InvestigationResult.evidence` 一致。
+- [x] `InvestigationResult` 能序列化成 JSON，且不含 LangChain / LangGraph 型別。
 
 Graph 失敗流程（S4）：
 
