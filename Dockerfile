@@ -34,4 +34,5 @@ COPY migrations ./migrations
 COPY app ./app
 COPY tests ./tests
 USER app
+ENV PYTEST_ADDOPTS="-p no:cacheprovider"
 CMD ["pytest", "-m", "not llm"]

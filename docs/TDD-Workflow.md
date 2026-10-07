@@ -152,7 +152,7 @@ Health（S6）：
 
 建立事件（S6）：
 
-- [ ] `POST /incidents` 合法輸入回 201，body 含 `id`、`title`、`description`、`status="created"`。
+- [x] `POST /incidents` 合法輸入回 201，body 含 `id`、`title`、`description`、`status="created"`。
 - [ ] `title`、`description` 前後空白會被去除後保存。
 - [ ] `title` 為空字串或只有空白時回 422。
 - [ ] `description` 為空字串或只有空白時回 422。
