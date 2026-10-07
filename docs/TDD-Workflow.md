@@ -259,11 +259,11 @@ State 隔離（S4）：
 成功流程（S6）：
 
 - [x] `POST /incidents/{id}/investigate` 回 200，body 含 `incident_id`、`report_id`、`status="completed"`、`report`。
-- [ ] 調查成功後，`GET /incidents/{id}` 的 `status` 為 `completed`。
-- [ ] `latest_report` 包含 report ID、建立時間、report、evidence、tool-call 紀錄。
-- [ ] Fake model 呼叫 `query_logs(service="checkout")` 時，保存的 evidence 等於真實 fixture 的 checkout 3 行（證明使用的是 production graph 與真實工具）。
-- [ ] 保存的 `model_name` 等於設定的 `LLM_MODEL`。
-- [ ] 以新的 application instance 查詢，仍取得相同的報告。
+- [x] 調查成功後，`GET /incidents/{id}` 的 `status` 為 `completed`。
+- [x] `latest_report` 包含 report ID、建立時間、report、evidence、tool-call 紀錄。
+- [x] Fake model 呼叫 `query_logs(service="checkout")` 時，保存的 evidence 等於真實 fixture 的 checkout 3 行（證明使用的是 production graph 與真實工具）。
+- [x] 保存的 `model_name` 等於設定的 `LLM_MODEL`。
+- [x] 以新的 application instance 查詢，仍取得相同的報告。
 
 歷史報告：
 

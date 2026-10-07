@@ -5,7 +5,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.repositories import IncidentRepository
 from app.db.session import get_session
-from app.schemas.incident import IncidentCreate, IncidentDetail, IncidentOut, InvestigateResponse
+from app.schemas.incident import (
+    IncidentCreate,
+    IncidentDetail,
+    IncidentOut,
+    InvestigateResponse,
+    SavedReport,
+)
 from app.schemas.report import InvestigationReport
 from app.services.investigation import InvestigationService
 
@@ -35,10 +41,28 @@ async def create_incident(payload: IncidentCreate, session: SessionDep) -> Incid
 
 @router.get("/{incident_id}", response_model=IncidentDetail)
 async def get_incident(incident_id: int, session: SessionDep) -> IncidentDetail:
-    incident = await IncidentRepository(session).get(incident_id)
+    repository = IncidentRepository(session)
+    incident = await repository.get(incident_id)
     if incident is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Incident not found")
-    return IncidentDetail.model_validate(incident)
+    record = await repository.latest_report(incident_id)
+    latest = None
+    if record is not None:
+        latest = SavedReport(
+            id=record.id,
+            created_at=record.created_at,
+            report=record.report_json,
+            evidence=record.evidence_json,
+            tool_calls=record.tool_calls_json,
+            model_name=record.model_name,
+        )
+    return IncidentDetail(
+        id=incident.id,
+        title=incident.title,
+        description=incident.description,
+        status=incident.status,
+        latest_report=latest,
+    )
 
 
 @router.post("/{incident_id}/investigate", response_model=InvestigateResponse)

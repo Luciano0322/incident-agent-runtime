@@ -1,7 +1,9 @@
+from datetime import datetime
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
+from app.schemas.investigation import ToolCallRecord
 from app.schemas.report import InvestigationReport
 
 TITLE_MAX_LENGTH = 200
@@ -30,8 +32,17 @@ class IncidentOut(BaseModel):
     status: Literal["created", "completed"]
 
 
+class SavedReport(BaseModel):
+    id: int
+    created_at: datetime
+    report: InvestigationReport
+    evidence: list[str]
+    tool_calls: list[ToolCallRecord]
+    model_name: str
+
+
 class IncidentDetail(IncidentOut):
-    latest_report: None = None
+    latest_report: SavedReport | None
 
 
 class InvestigateResponse(BaseModel):
