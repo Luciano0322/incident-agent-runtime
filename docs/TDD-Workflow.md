@@ -337,11 +337,11 @@ Live 測試設定：
 
 ### 指令驗證
 
-- [ ] 刪除 `ollama_data` 後 `docker compose up --build -d`：`model-init` 下載成功並以 exit code 0 結束，`migrate` 也是 0。
-- [ ] 初始化期間 `api` 不啟動；完成後 `curl -f http://localhost:8000/ready` 成功。
+- [x] 刪除 `ollama_data` 後 `docker compose up --build -d`：`model-init` 下載成功並以 exit code 0 結束，`migrate` 也是 0。
+- [x] 初始化期間 `api` 不啟動；完成後 `curl -f http://localhost:8000/ready` 成功。
 - [x] Ollama healthcheck 不依賴映像中不存在的工具（例如 curl）。
 - [x] Ollama 沒有對主機開放 port。
-- [ ] 再次執行 `model-init` 會跳過下載。
+- [x] 再次執行 `model-init` 會跳過下載。
 - [ ] `docker compose exec api python -m scripts.live_smoke` 成功：
   - [ ] 真實模型呼叫了 `query_logs(service="checkout")`。
   - [ ] 報告 schema 合法，至少一個 hypothesis，`recommended_next_steps` 非空。

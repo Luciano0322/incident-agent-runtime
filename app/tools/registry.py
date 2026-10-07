@@ -9,7 +9,11 @@ class QueryLogsArgs(BaseModel):
 
     service: str = Field(description="Service name, for example checkout or payment.")
     keyword: str | None = Field(
-        default=None, description="Optional case-insensitive substring to filter lines."
+        default=None,
+        description=(
+            "Optional case-insensitive substring of the log line text, for example"
+            " 'timeout'. Not a time filter. Omit it to get every line for the service."
+        ),
     )
 
 

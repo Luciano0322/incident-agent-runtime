@@ -1,16 +1,21 @@
 from app.schemas.investigation import InvestigationInput
 
 AGENT_SYSTEM = """You are an incident investigator.
-Decide whether you need log evidence. To collect it, call the query_logs tool
-with the service name and an optional keyword. Known services: checkout, payment.
-When you have enough evidence, or none is relevant, reply without calling tools.
+When the incident concerns a known service, collect log evidence with the
+query_logs tool before concluding. Known services: checkout, payment.
+query_logs(service) returns every log line for that service. The optional keyword
+only keeps lines whose text contains it (for example "timeout" or "pool"); it is
+not a time filter, so never pass a time as the keyword. Start without a keyword.
+If a query returns no lines, query again without a keyword.
+When you have enough evidence, reply without calling tools.
 Do not write the final report."""
 
 REPORT_SYSTEM = """You write a structured incident investigation report.
 Every evidence entry must be copied exactly, as a whole line, from the collected
 log lines below. Never cite the incident description or anything not listed.
-If no log lines were collected, return an empty hypotheses list and still give a
-clear summary and next steps."""
+If log lines were collected, give at least one hypothesis that cites the lines
+that support it. If no log lines were collected, return an empty hypotheses list
+and still give a clear summary and next steps."""
 
 
 def incident_context(incident: InvestigationInput) -> str:
