@@ -54,3 +54,12 @@ async def test_ollama_that_comes_up_within_the_retry_budget_is_used():
     exit_code = await initialize_model(registry, "llama3.2:3b", attempts=3, sleep=no_wait)
 
     assert exit_code == 0
+
+
+async def test_rejected_pull_fails_with_a_clear_message(capsys):
+    registry = FakeModelRegistry(models=[], pull_error=ConnectionError("pull model manifest: file does not exist"))
+
+    exit_code = await initialize_model(registry, "llama3.2:typo", sleep=no_wait)
+
+    assert exit_code != 0
+    assert "llama3.2:typo" in capsys.readouterr().err

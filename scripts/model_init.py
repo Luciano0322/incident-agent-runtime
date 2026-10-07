@@ -49,7 +49,11 @@ async def initialize_model(
         return 0
 
     print(f"Pulling model {model}; the first download can take several minutes.")
-    await registry.pull(model)
+    try:
+        await registry.pull(model)
+    except ConnectionError as exc:
+        print(f"Could not pull {model}: {exc}", file=sys.stderr)
+        return 1
     if has_model(await registry.list_models(), model):
         print(f"Model {model} is available.")
         return 0

@@ -1,5 +1,6 @@
 from typing import Protocol
 
+import httpx
 import ollama
 
 from app.config import Settings
@@ -28,14 +29,28 @@ def has_model(available: list[str], wanted: str) -> bool:
 class OllamaModelRegistry:
     """ModelRegistry backed by the Ollama HTTP API."""
 
-    def __init__(self, settings: Settings) -> None:
+    def __init__(
+        self, settings: Settings, transport: httpx.AsyncBaseTransport | None = None
+    ) -> None:
+        extra = {"transport": transport} if transport is not None else {}
         self._client = ollama.AsyncClient(
-            host=settings.ollama_base_url, timeout=settings.llm_request_timeout_seconds
+            host=settings.ollama_base_url, timeout=settings.llm_request_timeout_seconds, **extra
         )
 
     async def list_models(self) -> list[str]:
-        response = await self._client.list()
+        try:
+            response = await self._client.list()
+        except (ollama.ResponseError, httpx.TransportError) as exc:
+            raise ConnectionError(f"Ollama could not list models: {exc}") from exc
         return [model.model for model in response.models if model.model]
 
     async def pull(self, model: str) -> None:
-        await self._client.pull(model)
+        """Stream the pull so a long download never trips the read timeout."""
+        last_status = None
+        try:
+            async for progress in await self._client.pull(model, stream=True):
+                if progress.status != last_status:
+                    print(f"{model}: {progress.status}", flush=True)
+                    last_status = progress.status
+        except (ollama.ResponseError, httpx.TransportError) as exc:
+            raise ConnectionError(f"Ollama could not pull {model}: {exc}") from exc

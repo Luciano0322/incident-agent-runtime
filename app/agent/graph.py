@@ -20,16 +20,13 @@ from app.agent.errors import (
     ToolCallError,
 )
 from app.agent.grounding import validate_grounding
+from app.agent.models import PROVIDER_ERRORS
 from app.config import Settings
 from app.schemas.investigation import InvestigationInput, InvestigationResult, ToolCallRecord
 from app.schemas.report import InvestigationReport
 from app.tools.registry import default_tools
 
 MAX_TOOL_CALLS_PER_ROUND = 2
-
-# Errors that mean the model provider failed. Kept narrow on purpose: anything
-# else is a bug and should surface as a 500, not a provider failure.
-PROVIDER_ERRORS: tuple[type[BaseException], ...] = (ConnectionError,)
 
 
 @dataclass(frozen=True)

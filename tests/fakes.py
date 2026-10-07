@@ -70,8 +70,11 @@ def returns_report(report: dict[str, Any]) -> AIMessage:
 class FakeModelRegistry:
     """In-memory stand-in for the Ollama model registry."""
 
-    def __init__(self, models=(), reachable=True, pull_installs=True, unreachable_calls=0):
+    def __init__(
+        self, models=(), reachable=True, pull_installs=True, unreachable_calls=0, pull_error=None
+    ):
         self.models = list(models)
+        self.pull_error = pull_error
         self.reachable = reachable
         self.unreachable_calls = unreachable_calls
         self.pull_installs = pull_installs
@@ -89,5 +92,7 @@ class FakeModelRegistry:
         if not self.reachable:
             raise ConnectionError("Failed to connect to Ollama")
         self.pulled.append(model)
+        if self.pull_error is not None:
+            raise self.pull_error
         if self.pull_installs:
             self.models.append(model)

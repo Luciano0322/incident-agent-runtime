@@ -327,8 +327,8 @@ Model-init（S8，注入 fake Ollama client 與 clock）：
 
 Ollama adapter（以 HTTP 層 stub 驗證）：
 
-- [ ] `LLM_REQUEST_TIMEOUT_SECONDS` 實際套用到請求。
-- [ ] 連線失敗、HTTP 5xx → 轉成 provider failure。
+- [x] `LLM_REQUEST_TIMEOUT_SECONDS` 實際套用到請求。
+- [x] 連線失敗、HTTP 5xx → 轉成 provider failure。
 
 Live 測試設定：
 
