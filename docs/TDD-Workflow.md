@@ -143,8 +143,8 @@ Settings（S1）：
 
 Migration（S7）：
 
-- [ ] 對乾淨 DB 執行 `alembic upgrade head` 成功，之後可以建立事件。
-- [ ] 已有資料時再執行一次 `upgrade head`，既有事件仍在。
+- [x] 對乾淨 DB 執行 `alembic upgrade head` 成功，之後可以建立事件。
+- [x] 已有資料時再執行一次 `upgrade head`，既有事件仍在。
 
 Health（S6）：
 
@@ -153,7 +153,7 @@ Health（S6）：
 建立事件（S6）：
 
 - [x] `POST /incidents` 合法輸入回 201，body 含 `id`、`title`、`description`、`status="created"`。
-- [ ] `title`、`description` 前後空白會被去除後保存。
+- [x] `title`、`description` 前後空白會被去除後保存。
 - [ ] `title` 為空字串或只有空白時回 422。
 - [ ] `description` 為空字串或只有空白時回 422。
 - [ ] 超過長度上限（D2）時回 422。
@@ -161,9 +161,9 @@ Health（S6）：
 
 查詢事件（S6）：
 
-- [ ] `GET /incidents/{id}` 回傳事件，`latest_report` 為 `null`。
-- [ ] 事件不存在時回 404，`detail` 為 `Incident not found`。
-- [ ] 以新的 application instance（新的 engine / session）建立 test client 後，仍能查到先前建立的事件。
+- [x] `GET /incidents/{id}` 回傳事件，`latest_report` 為 `null`。
+- [x] 事件不存在時回 404，`detail` 為 `Incident not found`。
+- [x] 以新的 application instance（新的 engine / session）建立 test client 後，仍能查到先前建立的事件。
 
 ### 指令驗證
 

@@ -12,3 +12,6 @@ class IncidentRepository:
         self._session.add(incident)
         await self._session.flush()
         return incident
+
+    async def get(self, incident_id: int) -> Incident | None:
+        return await self._session.get(Incident, incident_id)
