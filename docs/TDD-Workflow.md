@@ -125,21 +125,21 @@ docker compose --profile test run --rm tests pytest tests/<path>.py -k <name>
 
 ### 先建立（非 TDD，讓迴圈能跑）
 
-- [ ] `pyproject.toml` + `uv.lock`（runtime 與 dev dependencies 分開）。
-- [ ] `Dockerfile`：runtime target 與 test target；安裝以 lockfile 為準，不複製主機 `.venv`。
-- [ ] `.dockerignore`：排除 `.env`、`.venv`、`.git`、暫存檔。
-- [ ] `compose.yaml`：`db`、`migrate`、`api`，以及 `test` profile 的 `test-db`、`tests`。
-- [ ] `.env.example`（proposal §8 的預設值）。
+- [x] `pyproject.toml` + `uv.lock`（runtime 與 dev dependencies 分開）。
+- [x] `Dockerfile`：runtime target 與 test target；安裝以 lockfile 為準，不複製主機 `.venv`。
+- [x] `.dockerignore`：排除 `.env`、`.venv`、`.git`、暫存檔。
+- [x] `compose.yaml`：`db`、`migrate`、`api`，以及 `test` profile 的 `test-db`、`tests`。
+- [x] `.env.example`（proposal §8 的預設值）。
 - [ ] 一個必定通過的 smoke 測試，確認 `tests` service 能連上 `test-db`。
 
 ### Red → Green slices
 
 Settings（S1）：
 
-- [ ] 未設定可選變數時，套用 proposal 的預設值（`MAX_TOOL_ROUNDS=2`、`GRAPH_RECURSION_LIMIT=16`、兩個 timeout）。
-- [ ] `LLM_PROVIDER=ollama` 被接受。
-- [ ] `LLM_PROVIDER` 為其他值時，建立設定失敗。
-- [ ] 若支援由各欄位組合 `DATABASE_URL`：密碼含 `@`、`:`、`/` 等特殊字元時，組合結果仍能正確解析。
+- [x] 未設定可選變數時，套用 proposal 的預設值（`MAX_TOOL_ROUNDS=2`、`GRAPH_RECURSION_LIMIT=16`、兩個 timeout）。
+- [x] `LLM_PROVIDER=ollama` 被接受。
+- [x] `LLM_PROVIDER` 為其他值時，建立設定失敗。
+- [x] 若支援由各欄位組合 `DATABASE_URL`：密碼含 `@`、`:`、`/` 等特殊字元時，組合結果仍能正確解析。
 
 Migration（S7）：
 
@@ -148,7 +148,7 @@ Migration（S7）：
 
 Health（S6）：
 
-- [ ] `GET /health` 回 200，且不需要模型。
+- [x] `GET /health` 回 200，且不需要模型。
 
 建立事件（S6）：
 
@@ -167,7 +167,7 @@ Health（S6）：
 
 ### 指令驗證
 
-- [ ] `docker compose config` 成功。
+- [x] `docker compose config` 成功。
 - [ ] `docker compose up --build -d db migrate api` 後，`migrate` 以 exit code 0 結束，`curl -f http://localhost:8000/health` 成功。
 - [ ] API 只綁定主機 `127.0.0.1:8000`；`db` 沒有對主機開放 port。
 - [ ] Runtime startup 沒有呼叫 `metadata.create_all()`。
