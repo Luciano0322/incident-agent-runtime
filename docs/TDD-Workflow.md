@@ -371,14 +371,14 @@ Live 測試設定：
 
 ### GitHub Actions
 
-- [ ] `uv.lock` 一致性檢查。
-- [ ] Deterministic unit / graph tests。
-- [ ] 真實 PostgreSQL 的 API tests。
-- [ ] Runtime image build。
-- [ ] Migration 與不含模型的容器 smoke check（獨立 override / profile，只測 liveness 與基本 incident API）。
-- [ ] `docker compose config` 驗證。
-- [ ] 失敗時上傳 log artifacts。
-- [ ] CI 不 pull、不呼叫任何 LLM。
+- [x] `uv.lock` 一致性檢查。
+- [x] Deterministic unit / graph tests。
+- [x] 真實 PostgreSQL 的 API tests。
+- [x] Runtime image build。
+- [x] Migration 與不含模型的容器 smoke check（獨立 override / profile，只測 liveness 與基本 incident API）。
+- [x] `docker compose config` 驗證。
+- [x] 失敗時上傳 log artifacts。
+- [x] CI 不 pull、不呼叫任何 LLM。
 
 ### 重現性驗證
 
@@ -390,10 +390,10 @@ Live 測試設定：
 
 ### 文件
 
-- [ ] README 與 README-zhtw 的「待補 / TBD」全部填上：repository URL、驗證過的模型、digest、Ollama 版本、硬體、首次下載時間、`llm` suite 指令。
-- [ ] README 的指令、API、錯誤碼與實作一致。
-- [ ] `docs/Verification.md` 記錄 OS、CPU / GPU、RAM、Docker / Compose 版本、映像與套件版本、模型名稱與 digest、初始化與調查耗時。
-- [ ] `docs/Verification.md` 把「已執行」、「未執行」、「受環境限制」三類驗證分開列出。
+- [x] README 與 README-zhtw 的「待補 / TBD」全部填上：repository URL、驗證過的模型、digest、Ollama 版本、硬體、首次下載時間、`llm` suite 指令。
+- [x] README 的指令、API、錯誤碼與實作一致。
+- [x] `docs/Verification.md` 記錄 OS、CPU / GPU、RAM、Docker / Compose 版本、映像與套件版本、模型名稱與 digest、初始化與調查耗時。
+- [x] `docs/Verification.md` 把「已執行」、「未執行」、「受環境限制」三類驗證分開列出。
 
 **出口條件：**
 
