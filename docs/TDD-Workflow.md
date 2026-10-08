@@ -105,7 +105,7 @@ docker compose --profile test run --rm tests pytest tests/<path>.py -k <name>
 - [x] 查證並選定相容版本：Python 3.12、FastAPI、Pydantic v2、LangGraph、LangChain Ollama adapter、SQLAlchemy 2.x、psycopg 3、Alembic、pytest 與 async 支援。
 - [x] 選定 PostgreSQL 與 Ollama 映像的固定 release tag；可行時記錄 digest。
 - [x] 設計 Compose startup / test dependency（`service_healthy`、`service_completed_successfully`）。
-- [ ] 決定第 4 節 D1–D6。
+- [x] 決定第 4 節 D1–D6。（記錄於 ImplementationPlan §3）
 - [x] 列出必須實測才能確認的假設，至少包含：
   - [x] `llama3.2:3b` 在選定 Ollama / adapter 版本下能否 tool calling。
   - [x] 同一模型能否穩定產生 structured output。
@@ -382,11 +382,11 @@ Live 測試設定：
 
 ### 重現性驗證
 
-- [ ] 全新 clone，依 README 的 bash 步驟啟動成功。
-- [ ] 依 README 的 PowerShell 步驟啟動成功（或明確記錄未在 Windows 上驗證）。
-- [ ] `docker compose down` 後 `docker compose up -d`，既有事件與報告仍在，模型不需重新下載。
-- [ ] README 的「更換模型」步驟實際執行一次並確認可用；不可用則修正 README。
-- [ ] `docker compose down -v` 會清空資料與模型，行為與 README 描述一致。
+- [ ] 全新 clone，依 README 的 bash 步驟啟動成功。（未執行：只在 Windows 驗證，見 Verification §6）
+- [x] 依 README 的 PowerShell 步驟啟動成功（或明確記錄未在 Windows 上驗證）。
+- [x] `docker compose down` 後 `docker compose up -d`，既有事件與報告仍在，模型不需重新下載。
+- [x] README 的「更換模型」步驟實際執行一次並確認可用；不可用則修正 README。
+- [x] `docker compose down -v` 會清空資料與模型，行為與 README 描述一致。
 
 ### 文件
 
@@ -397,7 +397,7 @@ Live 測試設定：
 
 **出口條件：**
 
-- [ ] proposal §19 Definition of Done 全部勾選（見第 5 節對照）。
+- [x] proposal §19 Definition of Done 全部勾選（見第 5 節對照）。
 
 ---
 

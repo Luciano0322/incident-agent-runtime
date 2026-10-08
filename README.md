@@ -299,7 +299,7 @@ Inside the containers, the app builds the database URL from the `POSTGRES_*` val
 | Default model | `qwen2.5:7b` (4.7 GB, Ollama ID `845dbda0ea48`) |
 | Ollama | `ollama/ollama:0.35.1` |
 | Verified on | Intel Core i5-13500 (20 threads), CPU only, 7.6 GB for Docker, Windows 11 + Docker Desktop |
-| Live result | 2 of 3 checkout runs passed (100–223 s); the failed one was the first call after the download and most likely hit the old 120 s request timeout |
+| Live result | 3 of 4 checkout runs passed (100–223 s), including one from a fresh clone; the failed one was the first call after the download and most likely hit the old 120 s request timeout |
 
 The proposal started with `llama3.2:3b`. In four live runs it either filtered logs by a timestamp or returned no hypotheses even with evidence, so the default moved to `qwen2.5:7b`. The timeouts were raised from 120 s / 300 s for CPU inference. Details are in [docs/Verification.md](docs/Verification.md).
 

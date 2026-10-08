@@ -299,7 +299,7 @@ query_logs(service: str, keyword: str | None = None) -> list[str]
 | 預設模型 | `qwen2.5:7b`（4.7 GB，Ollama ID `845dbda0ea48`） |
 | Ollama | `ollama/ollama:0.35.1` |
 | 驗證環境 | Intel Core i5-13500（20 執行緒），純 CPU，Docker 可用 7.6 GB，Windows 11 + Docker Desktop |
-| 實測結果 | checkout 情境 3 次中 2 次通過（100–223 秒）；失敗的那次是模型下載後的第一次呼叫，很可能碰到當時 120 秒的單次請求上限 |
+| 實測結果 | checkout 情境 4 次中 3 次通過（100–223 秒），其中一次來自全新 clone；失敗的那次是模型下載後的第一次呼叫，很可能碰到當時 120 秒的單次請求上限 |
 
 proposal 最初的候選模型是 `llama3.2:3b`。它在 4 次實測中，不是把時間當成 keyword 篩選日誌，就是拿到證據後仍回傳空的 hypotheses，因此預設改為 `qwen2.5:7b`。逾時預設值也因 CPU 推論而從 120 / 300 秒調高。詳見 [docs/Verification.md](docs/Verification.md)。
 
