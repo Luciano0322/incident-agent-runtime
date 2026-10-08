@@ -130,3 +130,46 @@ async def test_model_registry_pull_reports_progress_in_ten_percent_steps(adapter
     assert any("50%" in line for line in progress_lines)
     assert any("100%" in line and "4700 MB" in line for line in progress_lines)
     assert len(progress_lines) <= 11
+
+
+async def pull_with_progress(adapter_settings, progress) -> None:
+    """Pull through a stubbed Ollama that streams `progress`."""
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = "\n".join(json.dumps(line) for line in progress) + "\n"
+        return httpx.Response(200, content=body.encode())
+
+    registry = OllamaModelRegistry(adapter_settings, transport=httpx.MockTransport(handler))
+    await registry.pull("qwen2.5:7b")
+
+
+def layer(digest: str, total: int, completed: int) -> dict:
+    return {"status": f"pulling {digest}", "digest": f"sha256:{digest}", "total": total,
+            "completed": completed}
+
+
+async def test_layers_under_one_megabyte_print_no_progress(adapter_settings, capsys):
+    await pull_with_progress(adapter_settings, [
+        {"status": "pulling manifest"},
+        layer("66b9ea09bd5b", 68, 68),
+        layer("eb4402837c78", 1482, 1482),
+        {"status": "success"},
+    ])
+
+    assert "%" not in capsys.readouterr().out
+
+
+async def test_layer_left_short_of_100_percent_is_completed_once_verifying_starts(
+    adapter_settings, capsys
+):
+    total = 4_683_087_332
+    await pull_with_progress(adapter_settings, [
+        {"status": "pulling manifest"},
+        layer("2bada8a74506", total, total * 95 // 100),
+        {"status": "verifying sha256 digest"},
+        {"status": "success"},
+    ])
+
+    out = capsys.readouterr().out
+    assert "100% of 4683 MB (4683 MB)" in out
+    assert out.index("100% of 4683 MB") < out.index("verifying sha256 digest")
