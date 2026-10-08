@@ -371,7 +371,7 @@ These need the main stack running with the model downloaded. They take minutes o
 docker compose exec api python -m scripts.live_smoke
 
 # The same scenario as a pytest test
-docker compose --profile test run --rm -e OLLAMA_BASE_URL=http://ollama:11434 tests pytest -m llm
+docker compose --profile test run --build --rm -e OLLAMA_BASE_URL=http://ollama:11434 tests pytest -m llm
 ```
 
 Both check that:

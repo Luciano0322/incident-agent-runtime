@@ -17,7 +17,7 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 |---|---|---|
 | Deterministic (fake model, real PostgreSQL) | `docker compose --profile test run --build --rm tests` | Yes |
 | Live model scenario | `docker compose exec api python -m scripts.live_smoke` | No |
-| Live model pytest suite | `docker compose --profile test run --rm -e OLLAMA_BASE_URL=http://ollama:11434 tests pytest -m llm` | No |
+| Live model pytest suite | `docker compose --profile test run --build --rm -e OLLAMA_BASE_URL=http://ollama:11434 tests pytest -m llm` | No |
 
 The default test run cannot reach a model: the test container points Ollama at an address that never resolves, and `llm` tests are deselected.
 

@@ -371,7 +371,7 @@ docker compose --profile test run --build --rm tests
 docker compose exec api python -m scripts.live_smoke
 
 # 同一個情境的 pytest 版本
-docker compose --profile test run --rm -e OLLAMA_BASE_URL=http://ollama:11434 tests pytest -m llm
+docker compose --profile test run --build --rm -e OLLAMA_BASE_URL=http://ollama:11434 tests pytest -m llm
 ```
 
 兩者都會檢查：
