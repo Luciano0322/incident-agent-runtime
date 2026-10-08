@@ -1,0 +1,9 @@
+# CI-only overlay: start db, migrate, and api without Ollama or a model.
+# Use with: docker compose -f compose.yaml -f compose.ci.yaml up -d --wait api
+# This checks liveness and the basic incident API only. It is NOT a working
+# investigation setup: /ready must report 503 here because no model exists.
+services:
+  api:
+    depends_on: !override
+      migrate:
+        condition: service_completed_successfully

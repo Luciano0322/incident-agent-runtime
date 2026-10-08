@@ -364,10 +364,10 @@ Live 測試設定：
 
 ### 測試環境補齊
 
-- [ ] `tests` service 不啟動 Ollama、不下載模型、不需要 LLM API key。
-- [ ] 測試執行時，模型位址指向無效位址；任何未經 fake 的 provider 呼叫都會立刻失敗，而不是嘗試連網。
-- [ ] `test-db` 不使用應用的 `postgres_data` volume。
-- [ ] 測試 setup 會在隔離 DB 上執行 migrations。
+- [x] `tests` service 不啟動 Ollama、不下載模型、不需要 LLM API key。
+- [x] 測試執行時，模型位址指向無效位址；任何未經 fake 的 provider 呼叫都會立刻失敗，而不是嘗試連網。
+- [x] `test-db` 不使用應用的 `postgres_data` volume。
+- [x] 測試 setup 會在隔離 DB 上執行 migrations。
 
 ### GitHub Actions
 

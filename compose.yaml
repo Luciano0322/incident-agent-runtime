@@ -13,6 +13,8 @@ x-app-env: &app-env
   GRAPH_RECURSION_LIMIT: ${GRAPH_RECURSION_LIMIT:-16}
   INVESTIGATION_TIMEOUT_SECONDS: ${INVESTIGATION_TIMEOUT_SECONDS:-600}
   LLM_REQUEST_TIMEOUT_SECONDS: ${LLM_REQUEST_TIMEOUT_SECONDS:-300}
+  # No external observability platform in V1 (proposal §3).
+  LANGSMITH_TRACING: "false"
 
 x-app-build: &app-build
   context: .
@@ -102,9 +104,12 @@ services:
       <<: *test-db-env
       POSTGRES_HOST: test-db
       POSTGRES_PORT: "5432"
-      # Only `pytest -m llm` reaches Ollama; start the main stack first for that.
-      OLLAMA_BASE_URL: http://ollama:11434
+      # Default tests must never reach a model: .invalid never resolves, so any
+      # call that is not faked fails at once. `pytest -m llm` overrides this with
+      # -e OLLAMA_BASE_URL=http://ollama:11434 while the main stack is running.
+      OLLAMA_BASE_URL: http://ollama.invalid:11434
       LLM_MODEL: ${LLM_MODEL:-qwen2.5:7b}
+      LANGSMITH_TRACING: "false"
     depends_on:
       test-db:
         condition: service_healthy
