@@ -45,12 +45,25 @@ class OllamaModelRegistry:
         return [model.model for model in response.models if model.model]
 
     async def pull(self, model: str) -> None:
-        """Stream the pull so a long download never trips the read timeout."""
+        """Stream the pull so a long download never trips the read timeout.
+
+        Prints each new status, plus download progress in 10% steps per layer.
+        """
         last_status = None
+        printed_step: dict[str, int] = {}
         try:
             async for progress in await self._client.pull(model, stream=True):
                 if progress.status != last_status:
                     print(f"{model}: {progress.status}", flush=True)
                     last_status = progress.status
+                if progress.digest and progress.total and progress.completed is not None:
+                    step = progress.completed * 10 // progress.total
+                    if step > printed_step.get(progress.digest, 0):
+                        printed_step[progress.digest] = step
+                        print(
+                            f"{model}: {step * 10}% of {progress.total // 1_000_000} MB"
+                            f" ({progress.completed // 1_000_000} MB)",
+                            flush=True,
+                        )
         except (ollama.ResponseError, httpx.TransportError) as exc:
             raise ConnectionError(f"Ollama could not pull {model}: {exc}") from exc
