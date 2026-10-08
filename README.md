@@ -8,6 +8,13 @@ A locally runnable incident investigation agent: it reads an incident descriptio
 
 When a user submits a description of a service problem, the agent decides whether it needs to query logs, calls tools to collect evidence, generates a structured investigation report, and stores the incident, report, evidence, and tool-call records in PostgreSQL. The whole application starts with Docker Compose, so you do not need Python, PostgreSQL, or Ollama installed on the host.
 
+## What this is
+
+The first, standalone stage of a larger plan: an incident investigator that a revision-aware coordinator, **settle** (not yet published), will drive later. V1 keeps investigation separate from persistence so that settle can decide which result to adopt; it does not integrate settle yet.
+
+- **It is** a locally runnable reference implementation: a LangGraph tool loop over fixture logs, evidence-checked reports, local Ollama, Docker Compose.
+- **It is not** a tool for real incidents: logs come from a fixed fixture, the API has no authentication, and model output is not a confirmed root cause.
+
 > [!NOTE]
 > **Status: V1 Docker Edition.** Deterministic tests pass in CI, and the live checkout scenario has passed with `qwen2.5:7b` on a CPU-only machine. See [docs/Verification.md](docs/Verification.md) for every recorded run, including failures.
 
