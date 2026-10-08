@@ -1,0 +1,92 @@
+# Deterministic gates for every PR and push to main (proposal §16).
+# CI never pulls or calls a model and needs no provider key. Installing
+# dependencies and building images may use the network.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lockfile:
+    name: Lockfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - name: uv.lock matches pyproject.toml
+        run: uv lock --check
+
+  compose-config:
+    name: Compose config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Validate default, test, and CI configurations
+        run: |
+          docker compose config -q
+          docker compose --profile test config -q
+          docker compose -f compose.yaml -f compose.ci.yaml config -q
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Unit, graph, and API tests against PostgreSQL (no model)
+        run: docker compose --profile test run --build --rm tests
+      - name: Collect logs
+        if: failure()
+        run: |
+          mkdir -p ci-logs
+          docker compose --profile test logs --no-color > ci-logs/compose.log 2>&1 || true
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: tests-logs
+          path: ci-logs/
+
+  container-smoke:
+    name: Container smoke
+    runs-on: ubuntu-latest
+    env:
+      COMPOSE: docker compose -f compose.yaml -f compose.ci.yaml
+      API: http://127.0.0.1:8000
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build the runtime image and start db, migrate, api (no model)
+        run: $COMPOSE up --build --detach --wait api
+      - name: Migration ran and is safe to re-run
+        run: |
+          test "$(docker inspect -f '{{.State.ExitCode}}' "$($COMPOSE ps -aq migrate)")" = 0
+          $COMPOSE run --rm migrate
+      - name: Liveness and the basic incident API
+        run: |
+          curl -fsS "$API/health"
+          id=$(curl -fsS -X POST "$API/incidents" -H 'Content-Type: application/json' \
+            -d '{"title": "CI smoke", "description": "Container smoke check without a model."}' \
+            | jq -r .id)
+          curl -fsS "$API/incidents/$id" | jq -e '.status == "created" and .latest_report == null'
+      - name: Readiness reports 503 because no model exists in this mode
+        run: test "$(curl -s -o /dev/null -w '%{http_code}' "$API/ready")" = 503
+      - name: Collect logs
+        if: failure()
+        run: |
+          mkdir -p ci-logs
+          $COMPOSE logs --no-color > ci-logs/compose.log 2>&1 || true
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: container-smoke-logs
+          path: ci-logs/
+      - name: Stop
+        if: always()
+        run: $COMPOSE down -v
