@@ -8,6 +8,13 @@
 
 使用者提交服務異常描述後，Agent 會判斷是否需要查詢日誌、呼叫工具收集證據，再產生結構化調查報告，並將事件、報告、證據與工具呼叫紀錄保存到 PostgreSQL。整個應用透過 Docker Compose 啟動，主機不需安裝 Python、PostgreSQL 或 Ollama。
 
+## 這是什麼
+
+一個更大計畫中的第一個、可獨立運作的階段：之後會由具備版本管理能力的協調層 **settle**（尚未發表）來驅動的事件調查器。V1 將調查與保存分開，讓 settle 日後能決定採用哪一個結果；目前尚未整合 settle。
+
+- **它是**一個可在本機執行的參考實作：以 LangGraph 工具迴圈查詢固定的日誌 fixture、證據經過檢查的報告、本機 Ollama、Docker Compose。
+- **它不是**用來處理真實事件的工具：日誌來自固定 fixture，API 沒有身分驗證，模型的輸出也不代表已確認的根因。
+
 > [!NOTE]
 > **專案狀態：V1 Docker Edition。** Deterministic 測試在 CI 中通過；checkout 情境已在純 CPU 環境以 `qwen2.5:7b` 實際跑通。所有驗證紀錄（包含失敗）見 [docs/Verification.md](docs/Verification.md)。
 
