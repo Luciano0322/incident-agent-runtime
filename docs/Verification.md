@@ -95,7 +95,7 @@ Docker 啟動成功、fake-model 測試通過、live-model scenario 成功是三
 | `.env` 改回 `LLM_MODEL=qwen2.5:7b` → `docker compose up -d` | `already available`，約 3 秒；`/ready` ready |
 | `docker compose down -v` | 移除兩個 volumes；`docker volume ls --filter name=incident-agent-runtime` 為空 |
 
-已知瑕疵：小於 1 MB 的 layer 會印出 `100% of 0 MB (0 MB)`；最大的 layer 停在 90%，未印出 100%（Ollama 該 layer 最後一次回報未帶 `completed`）。不影響功能。
+當時的顯示瑕疵：小於 1 MB 的 layer 會印出 `100% of 0 MB (0 MB)`；最大的 layer 停在 90%，未印出 100%（Ollama 對該 layer 的最後一次回報停在 100% 之前）。不影響功能，之後已修正：小於 1 MB 的 layer 不印進度，進入 `verifying sha256 digest` 時補印尚未到 100% 的 layer。
 
 ## 6. 尚未執行或受環境限制
 

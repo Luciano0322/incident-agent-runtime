@@ -26,6 +26,11 @@ def has_model(available: list[str], wanted: str) -> bool:
     return normalize(wanted) in {normalize(name) for name in available}
 
 
+# Layers smaller than this (config, license, template) finish instantly; their
+# progress would only print "0 MB" lines.
+MIN_PROGRESS_BYTES = 1_000_000
+
+
 class OllamaModelRegistry:
     """ModelRegistry backed by the Ollama HTTP API."""
 
@@ -47,23 +52,41 @@ class OllamaModelRegistry:
     async def pull(self, model: str) -> None:
         """Stream the pull so a long download never trips the read timeout.
 
-        Prints each new status, plus download progress in 10% steps per layer.
+        Prints each new status, plus download progress in 10% steps for layers
+        of at least 1 MB.
         """
         last_status = None
+        totals: dict[str, int] = {}
         printed_step: dict[str, int] = {}
+
+        def report(digest: str, step: int, completed: int) -> None:
+            printed_step[digest] = step
+            print(
+                f"{model}: {step * 10}% of {totals[digest] // 1_000_000} MB"
+                f" ({completed // 1_000_000} MB)",
+                flush=True,
+            )
+
         try:
             async for progress in await self._client.pull(model, stream=True):
                 if progress.status != last_status:
+                    if progress.status and progress.status.startswith(("verifying", "success")):
+                        # Ollama verifies only after every layer is downloaded, so a
+                        # layer whose last update stopped short of 100% is complete.
+                        for digest, step in list(printed_step.items()):
+                            if step < 10:
+                                report(digest, 10, totals[digest])
                     print(f"{model}: {progress.status}", flush=True)
                     last_status = progress.status
-                if progress.digest and progress.total and progress.completed is not None:
+                if (
+                    progress.digest
+                    and progress.total
+                    and progress.total >= MIN_PROGRESS_BYTES
+                    and progress.completed is not None
+                ):
+                    totals[progress.digest] = progress.total
                     step = progress.completed * 10 // progress.total
                     if step > printed_step.get(progress.digest, 0):
-                        printed_step[progress.digest] = step
-                        print(
-                            f"{model}: {step * 10}% of {progress.total // 1_000_000} MB"
-                            f" ({progress.completed // 1_000_000} MB)",
-                            flush=True,
-                        )
+                        report(progress.digest, step, progress.completed)
         except (ollama.ResponseError, httpx.TransportError) as exc:
             raise ConnectionError(f"Ollama could not pull {model}: {exc}") from exc
