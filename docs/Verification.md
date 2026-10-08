@@ -73,9 +73,14 @@ Docker 啟動成功、fake-model 測試通過、live-model scenario 成功是三
 
 此機器的端點防護軟體會以自有根憑證重新簽發 HTTPS 連線，Ollama 容器下載模型時出現 `x509: certificate signed by unknown authority`。處理方式為本機專用、不提交的 `compose.override.yaml`：以 `ollama/ollama:0.35.1` 為基底 build 一個加入該根憑證並設定 `SSL_CERT_DIR` 的映像。此機器的 Docker 服務無法讀取使用者目錄的 bind mount，因此改用 build 方式。專案本身的設定未變更。
 
+### `pytest -m llm`
+
+| 日期 | 指令 | 結果 |
+|---|---|---|
+| 2026-10-08 | `docker compose --profile test run --build --rm -e OLLAMA_BASE_URL=http://ollama:11434 tests pytest -m llm` | **PASS**：1 passed, 106 deselected，199.94 秒（`qwen2.5:7b`） |
+
 ## 5. 尚未執行
 
-- `pytest -m llm`。
 - 單次請求逾時（120 秒）與整體 deadline（300 秒）在 CPU 跑 7B 模型時是否足夠：第 6 次耗時 223 秒，接近 deadline。
 - 一般停止 / 重啟後資料與模型保留（M5）。
 - 全新 clone 重現（M5）。

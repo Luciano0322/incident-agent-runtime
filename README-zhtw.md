@@ -433,6 +433,10 @@ CPU 執行 7B 模型很慢，重新啟動後的第一次請求還要先把模型
 
 在 Windows PowerShell 中，`curl` 是 `Invoke-WebRequest` 的別名。請改用 `curl.exe`，送 JSON 時也可以用 `Invoke-RestMethod`。
 
+### Windows 上指令看起來卡住
+
+在 Windows 終端機視窗內點一下滑鼠會進入文字選取模式（快速編輯模式），這段期間任何要輸出到該視窗的程式都會被暫停。像 `pytest -m llm` 這類較久的指令若畫面停止更新，按 `Enter` 或 `Esc` 即可解除。
+
 ## 專案結構
 
 | 路徑 | 用途 |

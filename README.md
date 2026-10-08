@@ -433,6 +433,10 @@ Give Docker at least 8 GB of memory (Docker Desktop: Settings → Resources), or
 
 In Windows PowerShell, `curl` is an alias for `Invoke-WebRequest`. Use `curl.exe`, or `Invoke-RestMethod` for JSON requests.
 
+### A command looks stuck on Windows
+
+Clicking inside a Windows console window starts text selection (QuickEdit), which pauses any program that writes to that window. If a long command such as `pytest -m llm` stops updating, press `Enter` or `Esc` to release it.
+
 ## Project structure
 
 | Path | Purpose |
