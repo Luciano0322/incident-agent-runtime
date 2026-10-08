@@ -106,3 +106,27 @@ async def test_model_registry_pull_follows_streamed_progress(adapter_settings):
     registry = OllamaModelRegistry(adapter_settings, transport=httpx.MockTransport(handler))
 
     await registry.pull("llama3.2:3b")
+
+
+async def test_model_registry_pull_reports_progress_in_ten_percent_steps(adapter_settings, capsys):
+    total = 4_700_000_000
+    progress = [{"status": "pulling manifest"}]
+    progress += [
+        {"status": "pulling 2bada8a74506", "digest": "sha256:2bada8", "total": total,
+         "completed": total * step // 100}
+        for step in range(1, 101)
+    ]
+    progress.append({"status": "success"})
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = "\n".join(json.dumps(line) for line in progress) + "\n"
+        return httpx.Response(200, content=body.encode())
+
+    registry = OllamaModelRegistry(adapter_settings, transport=httpx.MockTransport(handler))
+
+    await registry.pull("qwen2.5:7b")
+
+    progress_lines = [line for line in capsys.readouterr().out.splitlines() if "%" in line]
+    assert any("50%" in line for line in progress_lines)
+    assert any("100%" in line and "4700 MB" in line for line in progress_lines)
+    assert len(progress_lines) <= 11
